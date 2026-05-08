@@ -82,7 +82,7 @@ const salesData = [
 
 // ─── 이번 주 리포트 데이터 ────────────────────────────────────────────────────
 const THIS_WEEK = {
-  period: "2026년 5월 4주차",
+  period: "5월 4주차",
   headline: "대체로 맑음, 하지만 배송엔 민감",
   summary:
     "이번 주 리뷰의 85%가 긍정적이었어요. 특히 '소재의 부드러움'에 감동한 고객이 많았습니다.",
@@ -524,11 +524,11 @@ export function Reports() {
           {/* 그라디언트 헤더 영역 */}
           <div className="bg-linear-to-br from-indigo-500 to-purple-600 p-5 text-white">
             <div className="flex justify-between items-start">
-              <div>
-                <p className="text-xs font-semibold tracking-widest text-indigo-200 uppercase">
-                  Customer Voice Report
-                </p>
-                <p className="text-xs text-indigo-200 mt-0.5">{THIS_WEEK.period}</p>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                  고객 리뷰 / CS
+                </span>
+                <span className="text-xs text-indigo-200 font-medium">{THIS_WEEK.period}</span>
               </div>
               {isPro ? (
                 <div className="flex items-center gap-1 text-xs text-white bg-white/20 rounded-full px-2.5 py-1 shrink-0">
