@@ -55,7 +55,7 @@ export function Layout() {
           </NavLink>
 
           <NavLink
-            to="/stats"
+            to="/reports"
             className={({ isActive }) =>
               cn(
                 "flex flex-col items-center justify-center w-full h-full text-xs font-medium transition-colors",
@@ -64,7 +64,7 @@ export function Layout() {
             }
           >
             <BarChart2 className="w-6 h-6 mb-1" />
-            <span>통계</span>
+            <span>리포트</span>
           </NavLink>
 
           <NavLink
