@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Uptendo</title>
+    <script>
+      // GitHub Pages SPA routing hack:
+      // Save the full path in sessionStorage, then redirect to root.
+      // index.html restores the path via history.replaceState.
+      var path = location.pathname + location.search + location.hash;
+      if (path !== '/') {
+        sessionStorage.setItem('spa-redirect', path);
+      }
+      location.replace('/');
+    </script>
+  </head>
+  <body></body>
+</html>
