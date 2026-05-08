@@ -9,8 +9,65 @@ import {
 } from "recharts";
 import { InfoTooltip } from "../components/InfoTooltip";
 import { useProContext } from "../contexts/ProContext";
-import { ExternalLink, Lock, ChevronRight, Star, MessageSquare } from "lucide-react";
+import { ExternalLink, Lock, ChevronRight, Star, MessageSquare, X } from "lucide-react";
 import { cn } from "../../utils/cn";
+import { useState } from "react";
+
+// ─── 타입 정의 ──────────────────────────────────────────────────────────────────
+type ReportType = "business" | "review" | "operations";
+
+interface DetailSection {
+  type: "highlight" | "tmi" | "praise" | "warning";
+  icon: string;
+  label: string;
+  heading: string;
+  body: string;
+}
+
+interface PrevReport {
+  id: number;
+  period: string;
+  topic: string;
+  type: ReportType;
+  keywords: string[];
+  satisfaction: number;
+  detail: {
+    subtitle: string;
+    greeting: string;
+    sections: DetailSection[];
+  };
+}
+
+// ─── 리포트 타입별 스타일 메타 ──────────────────────────────────────────────────
+const TYPE_META: Record<
+  ReportType,
+  { label: string; badgeBg: string; badgeText: string; tagBg: string; tagText: string; tagBorder: string }
+> = {
+  business: {
+    label: "비즈니스 브리핑",
+    badgeBg: "bg-blue-50",
+    badgeText: "text-blue-600",
+    tagBg: "bg-blue-50",
+    tagText: "text-blue-600",
+    tagBorder: "border-blue-100",
+  },
+  review: {
+    label: "고객 리뷰 / CS",
+    badgeBg: "bg-purple-50",
+    badgeText: "text-purple-600",
+    tagBg: "bg-purple-50",
+    tagText: "text-purple-600",
+    tagBorder: "border-purple-100",
+  },
+  operations: {
+    label: "운영 & 배송",
+    badgeBg: "bg-amber-50",
+    badgeText: "text-amber-600",
+    tagBg: "bg-amber-50",
+    tagText: "text-amber-600",
+    tagBorder: "border-amber-100",
+  },
+};
 
 // ─── 통계 데이터 (기존 그대로) ─────────────────────────────────────────────────
 const salesData = [
@@ -23,7 +80,7 @@ const salesData = [
   { name: "일", 매출: 190 },
 ];
 
-// ─── 이번 주 리포트 데이터 (첨부 HTML 기반) ──────────────────────────────────
+// ─── 이번 주 리포트 데이터 ────────────────────────────────────────────────────
 const THIS_WEEK = {
   period: "2026년 5월 4주차",
   headline: "대체로 맑음, 하지만 배송엔 민감",
@@ -32,52 +89,138 @@ const THIS_WEEK = {
   avgSatisfaction: 4.8,
   positiveRate: 85,
   unanswered: 12,
-  keywords: [
-    { tag: "#실물깡패", count: 12, bg: "bg-gray-100", text: "text-gray-700" },
-    { tag: "#빠른배송", count: 8, bg: "bg-blue-50", text: "text-blue-700" },
-    { tag: "#단추불안", count: 3, bg: "bg-red-50", text: "text-red-700" },
-    { tag: "#단골예정", count: 15, bg: "bg-green-50", text: "text-green-700" },
-  ],
 };
 
-// ─── 이전 주간 리포팅 목록 (주문 상품 키워드 중심 목업) ─────────────────────
-const PREV_REPORTS = [
+// ─── 이전 주간 리포팅 목록 (최대 3개) ──────────────────────────────────────────
+const PREV_REPORTS: PrevReport[] = [
   {
     id: 1,
     period: "5월 3주차",
-    topic: "봄 가디건 시리즈 재구매율 역대 최고",
-    keywords: ["#봄가디건", "#소재만족", "#재구매"],
+    topic: "수요일 밤 주문 폭발, 봄 가디건이 효자 상품",
+    type: "business",
+    keywords: ["#수요일피크타임", "#봄가디건", "#단골타이밍"],
     satisfaction: 4.7,
+    detail: {
+      subtitle: "주간 비즈니스 브리핑",
+      greeting: "쉼팩토리 김사장님,\n지난 한 주 정말 수고 많으셨습니다! ☕",
+      sections: [
+        {
+          type: "highlight",
+          icon: "🏆",
+          label: "이번 주 결정적 한 장면",
+          heading: '"수요일 밤 11시, 주문이 폭발했어요!"',
+          body: "이번 주 가장 뜨거웠던 순간은 수요일 밤이었습니다. 특히 밤 11시부터 자정 사이에 주문의 30%가 집중되었네요. 효자 상품은 [자체제작] 봄맞이 가디건이었습니다.",
+        },
+        {
+          type: "tmi",
+          icon: "👀",
+          label: "흥미로운 데이터 TMI",
+          heading: '"단골들은 목요일 퇴근길에 지갑을 엽니다."',
+          body: "우리 쇼핑몰의 찐 단골 고객들은 목요일 오후 6시~8시 사이에 가장 많이 결제합니다. 다음 주 신상 알림이나 쿠폰은 이 시간에 맞춰 쏴보시는 건 어떨까요?",
+        },
+        {
+          type: "praise",
+          icon: "👏",
+          label: "참 잘했어요!",
+          heading: "취소/환불 방어율 98%",
+          body: "빠른 사전 안내로 고객의 마음을 돌린 사장님의 디테일이 빛났습니다.",
+        },
+        {
+          type: "warning",
+          icon: "🚨",
+          label: "주의가 필요해요!",
+          heading: "지연 주문 12건 중 9건이 동대문상회",
+          body: "이 거래처는 다음 주 월요일에 꼭 압박해 보세요!",
+        },
+      ],
+    },
   },
   {
     id: 2,
     period: "5월 2주차",
     topic: "린넨 블라우스 단추 품질 피드백 집중",
-    keywords: ["#린넨블라우스", "#단추불량", "#CS급증"],
+    type: "review",
+    keywords: ["#린넨블라우스", "#단추CS", "#품질개선요청"],
     satisfaction: 4.5,
+    detail: {
+      subtitle: "고객 리뷰 / CS 리포트",
+      greeting: "이번 주 고객의 목소리를 모아봤어요.",
+      sections: [
+        {
+          type: "highlight",
+          icon: "📌",
+          label: "지금 확인해야 할 소리",
+          heading: '"세탁 후 단추가 헐거워졌어요"',
+          body: "린넨 블라우스 구매 고객 중 3명이 세탁 후 단추 마감 품질에 대한 피드백을 남겼습니다. 구체적으로는 단추 실밥이 풀리는 현상으로, 공급사 품질 점검이 필요합니다.",
+        },
+        {
+          type: "tmi",
+          icon: "💡",
+          label: "흥미로운 리뷰 패턴",
+          heading: '"구매 후 2주+가 피드백의 골든타임"',
+          body: "이번 주 접수된 품질 리뷰의 70%는 구매 후 2주~3주 사이에 작성되었어요. 세탁 경험이 축적되는 시점이라 제품 케어 가이드 발송 타이밍을 이 구간에 맞춰보세요.",
+        },
+        {
+          type: "praise",
+          icon: "👏",
+          label: "참 잘했어요!",
+          heading: "CS 평균 응답 1.2시간",
+          body: "이번 주 CS 평균 응답 시간이 업계 평균 대비 3배 빠릅니다. 고객 재구매 의향이 올라가고 있어요.",
+        },
+        {
+          type: "warning",
+          icon: "🚨",
+          label: "주의가 필요해요!",
+          heading: "린넨 블라우스 잔여 재고 42개",
+          body: "품질 이슈가 확인된 배치의 잔여 재고를 공급사와 반품 협의해 보세요. 추가 CS 발생을 예방할 수 있습니다.",
+        },
+      ],
+    },
   },
   {
     id: 3,
     period: "5월 1주차",
     topic: "어버이날 선물 수요로 배송 문의 폭증",
-    keywords: ["#로맨틱가디건", "#선물포장", "#배송지연"],
+    type: "operations",
+    keywords: ["#선물포장", "#배송지연", "#합배송처리"],
     satisfaction: 4.6,
-  },
-  {
-    id: 4,
-    period: "4월 4주차",
-    topic: "체리블라썸 원피스 품절 대기 수요 급증",
-    keywords: ["#체리원피스", "#품절임박", "#재입고요청"],
-    satisfaction: 4.9,
-  },
-  {
-    id: 5,
-    period: "4월 3주차",
-    topic: "봄 신상 언박싱 후기 긍정 반응 급증",
-    keywords: ["#봄신상", "#언박싱", "#기대이상"],
-    satisfaction: 4.8,
+    detail: {
+      subtitle: "운영 & 배송 리포트",
+      greeting: "황금연휴가 끼인 한 주, 수고 많으셨습니다! 🌸",
+      sections: [
+        {
+          type: "highlight",
+          icon: "🎁",
+          label: "이번 주 결정적 한 장면",
+          heading: '"어버이날 D-3, 선물 주문이 쏟아졌어요"',
+          body: "5월 4일(일)부터 6일(화) 사이에 '선물포장 요청' 건수가 평소 대비 340% 급증했습니다. 가디건·블라우스 세트 구성 상품이 선물 수요를 주도했습니다.",
+        },
+        {
+          type: "tmi",
+          icon: "📦",
+          label: "배송 패턴 TMI",
+          heading: '"합배송 묶음이 오히려 독이 됐어요"',
+          body: "선물 수요 고객 중 상당수가 각각 다른 수령지로 발송을 요청했지만, 합배송 처리로 묶여 오히려 배송이 지연된 케이스가 7건 발생했습니다.",
+        },
+        {
+          type: "praise",
+          icon: "👏",
+          label: "참 잘했어요!",
+          heading: "선물포장 만족도 4.9점",
+          body: "직접 손으로 작성한 메시지 카드 덕분에 포토리뷰 15건이 올라왔어요. 감동 경험이 단골을 만들고 있습니다.",
+        },
+        {
+          type: "warning",
+          icon: "🚨",
+          label: "주의가 필요해요!",
+          heading: "지연 배송 미답변 고객 8명",
+          body: "배송 조회 후 연락이 끊긴 고객 8명에게 먼저 사과 메시지를 발송하세요. 선제적 대응이 리뷰 폭탄을 방어합니다.",
+        },
+      ],
+    },
   },
 ];
+
 
 // ─── 전체 리포트 HTML (새 창 출력용) ─────────────────────────────────────────
 function buildFullReportHtml(): string {
@@ -200,9 +343,162 @@ function openFullReport() {
   }
 }
 
-// ─── 컴포넌트 ──────────────────────────────────────────────────────────────────
+// ─── 이전 리포트 상세 시트 ──────────────────────────────────────────────────────
+function ReportDetailSheet({
+  report,
+  onClose,
+}: {
+  report: PrevReport;
+  onClose: () => void;
+}) {
+  const meta = TYPE_META[report.type];
+
+  // praise + warning 연속 시 2열로 묶기
+  const grouped: Array<DetailSection | [DetailSection, DetailSection]> = [];
+  let i = 0;
+  while (i < report.detail.sections.length) {
+    const curr = report.detail.sections[i];
+    const next = report.detail.sections[i + 1];
+    if (
+      next &&
+      ((curr.type === "praise" && next.type === "warning") ||
+        (curr.type === "warning" && next.type === "praise"))
+    ) {
+      grouped.push([curr, next]);
+      i += 2;
+    } else {
+      grouped.push(curr);
+      i++;
+    }
+  }
+
+  function sectionStyle(type: DetailSection["type"]) {
+    switch (type) {
+      case "highlight":
+        return {
+          wrap: "bg-blue-50 border-l-4 border-blue-400 rounded-r-xl",
+          label: "text-blue-600",
+          heading: "text-blue-900",
+          body: "text-blue-800",
+        };
+      case "tmi":
+        return {
+          wrap: "bg-amber-50 border-l-4 border-amber-400 rounded-r-xl",
+          label: "text-amber-600",
+          heading: "text-amber-900",
+          body: "text-amber-800",
+        };
+      case "praise":
+        return {
+          wrap: "bg-green-50 rounded-xl",
+          label: "text-green-600",
+          heading: "text-green-900",
+          body: "text-green-700",
+        };
+      case "warning":
+        return {
+          wrap: "bg-red-50 rounded-xl",
+          label: "text-red-600",
+          heading: "text-red-900",
+          body: "text-red-700",
+        };
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col" style={{ maxWidth: 448, margin: "0 auto" }}>
+      {/* 딤 배경 */}
+      <div
+        className="absolute inset-0 bg-black/40"
+        onClick={onClose}
+      />
+      {/* 시트 */}
+      <div className="absolute inset-x-0 bottom-0 top-12 bg-gray-50 rounded-t-2xl overflow-hidden flex flex-col shadow-2xl">
+        {/* 헤더 */}
+        <div className="flex-none bg-white px-4 py-4 border-b border-gray-100 flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-0.5">
+              <span
+                className={cn(
+                  "text-xs font-semibold px-2 py-0.5 rounded-full",
+                  meta.badgeBg,
+                  meta.badgeText
+                )}
+              >
+                {meta.label}
+              </span>
+              <span className="text-xs text-gray-400">{report.period}</span>
+            </div>
+            <h2 className="text-base font-bold text-gray-900 leading-snug mt-1">
+              {report.topic}
+            </h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="ml-3 shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* 스크롤 콘텐츠 */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {/* 인트로 인사 */}
+          <p className="text-sm text-gray-500 whitespace-pre-line leading-relaxed px-1">
+            {report.detail.greeting}
+          </p>
+
+          {/* 섹션 */}
+          {grouped.map((item, idx) => {
+            if (Array.isArray(item)) {
+              const [a, b] = item;
+              const sa = sectionStyle(a.type);
+              const sb = sectionStyle(b.type);
+              return (
+                <div key={idx} className="grid grid-cols-2 gap-3">
+                  {[{ s: sa, d: a }, { s: sb, d: b }].map(({ s, d }) => (
+                    <div key={d.label} className={cn("p-3.5", s.wrap)}>
+                      <p className={cn("text-base mb-1")}>{d.icon}</p>
+                      <p className={cn("text-xs font-bold mb-1", s.label)}>{d.label}</p>
+                      <p className={cn("text-sm font-semibold leading-snug mb-1.5", s.heading)}>
+                        {d.heading}
+                      </p>
+                      <p className={cn("text-xs leading-relaxed", s.body)}>{d.body}</p>
+                    </div>
+                  ))}
+                </div>
+              );
+            }
+            const s = sectionStyle(item.type);
+            return (
+              <div key={idx} className={cn("p-4", s.wrap)}>
+                <p className="text-xl mb-2">{item.icon}</p>
+                <p className={cn("text-xs font-bold uppercase tracking-wide mb-1", s.label)}>
+                  {item.label}
+                </p>
+                <p className={cn("text-base font-bold leading-snug mb-2", s.heading)}>
+                  {item.heading}
+                </p>
+                <p className={cn("text-sm leading-relaxed", s.body)}>{item.body}</p>
+              </div>
+            );
+          })}
+
+          {/* 만족도 */}
+          <div className="flex items-center justify-center gap-2 py-3 bg-white rounded-xl border border-gray-100">
+            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+            <span className="text-sm font-bold text-gray-800">{report.satisfaction}</span>
+            <span className="text-xs text-gray-400">/ 5.0 · 주차 평균 만족도</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Reports() {
   const { isPro } = useProContext();
+  const [selectedReport, setSelectedReport] = useState<PrevReport | null>(null);
 
   return (
     <div className="p-4 space-y-6 bg-gray-50 min-h-full pb-20">
@@ -273,34 +569,15 @@ export function Reports() {
             </div>
           </div>
 
-          {/* 키워드 + PRO 안내 */}
-          <div className="bg-white px-4 py-4">
-            <p className="text-xs font-semibold text-gray-400 mb-2">자주 언급된 키워드</p>
-            <div className="flex flex-wrap gap-2">
-              {THIS_WEEK.keywords.map((kw) => (
-                <span
-                  key={kw.tag}
-                  className={cn(
-                    "text-xs px-3 py-1.5 rounded-full font-medium",
-                    kw.bg,
-                    kw.text
-                  )}
-                >
-                  {kw.tag}{" "}
-                  <span className="opacity-60 font-normal">{kw.count}</span>
-                </span>
-              ))}
+          {/* PRO 비활성 안내 (비Pro 전용) */}
+          {!isPro && (
+            <div className="bg-white px-4 py-3.5 flex items-center gap-2">
+              <Lock className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+              <p className="text-xs text-indigo-600 font-semibold">
+                PRO로 업그레이드하면 전체 리포트를 열람할 수 있어요
+              </p>
             </div>
-
-            {!isPro && (
-              <div className="mt-4 flex items-center gap-2 py-2.5 px-3 bg-indigo-50 rounded-xl">
-                <Lock className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                <p className="text-xs text-indigo-600 font-semibold">
-                  PRO로 업그레이드하면 전체 리포트를 열람할 수 있어요
-                </p>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </section>
 
@@ -311,34 +588,52 @@ export function Reports() {
         </h2>
 
         <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 divide-y divide-gray-50">
-          {PREV_REPORTS.map((report) => (
-            <div
-              key={report.id}
-              className="flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 transition-colors cursor-pointer"
-            >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-xs text-gray-400 shrink-0">{report.period}</span>
-                  <span className="flex items-center gap-0.5 text-xs font-semibold text-yellow-500 shrink-0">
-                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                    {report.satisfaction}
-                  </span>
-                </div>
-                <p className="text-sm font-medium text-gray-800 truncate">{report.topic}</p>
-                <div className="flex gap-1.5 mt-1.5 flex-wrap">
-                  {report.keywords.map((kw) => (
+          {PREV_REPORTS.map((report) => {
+            const meta = TYPE_META[report.type];
+            return (
+              <div
+                key={report.id}
+                onClick={() => setSelectedReport(report)}
+                className="flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
                     <span
-                      key={kw}
-                      className="text-xs text-gray-400 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-full"
+                      className={cn(
+                        "text-xs font-semibold px-2 py-0.5 rounded-full shrink-0",
+                        meta.badgeBg,
+                        meta.badgeText
+                      )}
                     >
-                      {kw}
+                      {meta.label}
                     </span>
-                  ))}
+                    <span className="text-xs text-gray-400 shrink-0">{report.period}</span>
+                    <span className="flex items-center gap-0.5 text-xs font-semibold text-yellow-500 shrink-0 ml-auto">
+                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      {report.satisfaction}
+                    </span>
+                  </div>
+                  <p className="text-sm font-medium text-gray-800 truncate">{report.topic}</p>
+                  <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                    {report.keywords.map((kw) => (
+                      <span
+                        key={kw}
+                        className={cn(
+                          "text-xs px-2 py-0.5 rounded-full border font-medium",
+                          meta.tagBg,
+                          meta.tagText,
+                          meta.tagBorder
+                        )}
+                      >
+                        {kw}
+                      </span>
+                    ))}
+                  </div>
                 </div>
+                <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
               </div>
-              <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -397,6 +692,15 @@ export function Reports() {
           </div>
         </div>
       </section>
+
+      {/* ── 이전 리포트 상세 시트 ──────────────────────────────────────────────── */}
+      {selectedReport && (
+        <ReportDetailSheet
+          report={selectedReport}
+          onClose={() => setSelectedReport(null)}
+        />
+      )}
     </div>
   );
 }
+
