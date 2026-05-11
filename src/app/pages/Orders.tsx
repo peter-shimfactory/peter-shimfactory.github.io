@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Crown, X, ChevronDown, MapPin, Phone, Package, Calendar } from "lucide-react";
+import { Crown, X, ChevronDown, MapPin, Phone, Package, Calendar, RefreshCw, AlertCircle, Link2 } from "lucide-react";
 import { CopyableOrderId } from "../components/CopyableOrderId";
 import { cn } from "../../utils/cn";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { app } from "../../lib/firebase";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -33,30 +35,21 @@ interface Order {
   phone: string;
 }
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
+// ─── Mock Data (카페24 미연동 시 fallback) ────────────────────────────────────
 
 const now = new Date();
 function minsAgo(m: number) {
   return new Date(now.getTime() - m * 60 * 1000);
 }
 
-const ALL_ORDERS: Order[] = [
-  { id: "ORD-1001", createdAt: minsAgo(18), customerName: "김민준", isVip: true, items: [{ name: "여성용 베이직 티셔츠", qty: 2 }, { name: "린넨 슬랙스", qty: 1 }, { name: "캐주얼 자켓", qty: 1 }], total: 128000, status: "paid", address: "서울 강남구 테헤란로 123", phone: "010-1234-****" },
-  { id: "ORD-1002", createdAt: minsAgo(45), customerName: "이서연", isVip: false, items: [{ name: "코튼 반팔 원피스", qty: 1 }], total: 42000, status: "preparing", address: "경기 성남시 분당구 판교로 7", phone: "010-9876-****" },
-  { id: "ORD-1003", createdAt: minsAgo(90), customerName: "박지호", isVip: true, items: [{ name: "오버핏 후드티", qty: 3 }, { name: "조거 팬츠", qty: 2 }], total: 215000, status: "paid", address: "서울 마포구 합정동 99", phone: "010-5555-****" },
-  { id: "ORD-1004", createdAt: minsAgo(200), customerName: "최수아", isVip: false, items: [{ name: "플리츠 미니스커트", qty: 1 }, { name: "크롭 블라우스", qty: 1 }], total: 67500, status: "preparing", address: "부산 해운대구 좌동 12", phone: "010-2222-****" },
-  { id: "ORD-1005", createdAt: minsAgo(800), customerName: "정현우", isVip: false, items: [{ name: "데님 와이드팬츠", qty: 1 }], total: 55000, status: "cancel_request", address: "인천 남동구 논현로 55", phone: "010-3333-****" },
-  { id: "ORD-1006", createdAt: minsAgo(1200), customerName: "강나은", isVip: true, items: [{ name: "실크 블라우스", qty: 2 }, { name: "하이웨스트 팬츠", qty: 1 }, { name: "벨트", qty: 1 }], total: 189000, status: "shipped", address: "대구 수성구 범어동 44", phone: "010-7777-****" },
-  { id: "ORD-1007", createdAt: minsAgo(1800), customerName: "조태윤", isVip: false, items: [{ name: "무지 긴팔 티셔츠", qty: 4 }], total: 76000, status: "paid", address: "광주 서구 치평동 200", phone: "010-4444-****" },
-  { id: "ORD-1008", createdAt: minsAgo(2400), customerName: "윤하늘", isVip: false, items: [{ name: "니트 가디건", qty: 1 }, { name: "이너 티셔츠", qty: 2 }], total: 98000, status: "cancelled", address: "대전 유성구 노은동 88", phone: "010-6666-****" },
-  { id: "ORD-1009", createdAt: minsAgo(3000), customerName: "임도현", isVip: true, items: [{ name: "트위드 자켓", qty: 1 }, { name: "트위드 스커트", qty: 1 }], total: 320000, status: "paying", address: "서울 용산구 이태원동 5", phone: "010-8888-****" } as unknown as Order,
-  { id: "ORD-1010", createdAt: minsAgo(5000), customerName: "한지우", isVip: false, items: [{ name: "청바지", qty: 1 }], total: 49000, status: "refunded", address: "울산 남구 삼산로 30", phone: "010-0000-****" },
-  { id: "ORD-1011", createdAt: minsAgo(50), customerName: "서예린", isVip: false, items: [{ name: "스트라이프 셔츠", qty: 2 }, { name: "치노 팬츠", qty: 1 }], total: 83000, status: "paid", address: "서울 동작구 사당동 11", phone: "010-1111-****" },
-  { id: "ORD-1012", createdAt: minsAgo(120), customerName: "문준호", isVip: false, items: [{ name: "기모 맨투맨", qty: 1 }], total: 38000, status: "preparing", address: "경기 고양시 일산동구 정발산로 3", phone: "010-2345-****" },
+const MOCK_ORDERS: Order[] = [
+  { id: "ORD-1001", createdAt: minsAgo(18), customerName: "김민준", isVip: true, items: [{ name: "여성용 베이직 티셔츠", qty: 2 }, { name: "린넨 슬랙스", qty: 1 }], total: 128000, status: "paid", address: "서울 강남구 테헤란로 123", phone: "010-****-5678" },
+  { id: "ORD-1002", createdAt: minsAgo(45), customerName: "이서연", isVip: false, items: [{ name: "코튼 반팔 원피스", qty: 1 }], total: 42000, status: "preparing", address: "경기 성남시 분당구 판교로 7", phone: "010-****-3456" },
+  { id: "ORD-1003", createdAt: minsAgo(90), customerName: "박지호", isVip: true, items: [{ name: "오버핏 후드티", qty: 3 }, { name: "조거 팬츠", qty: 2 }], total: 215000, status: "paid", address: "서울 마포구 합정동 99", phone: "010-****-7890" },
+  { id: "ORD-1004", createdAt: minsAgo(200), customerName: "최수아", isVip: false, items: [{ name: "플리츠 미니스커트", qty: 1 }], total: 67500, status: "preparing", address: "부산 해운대구 좌동 12", phone: "010-****-1234" },
+  { id: "ORD-1005", createdAt: minsAgo(800), customerName: "정현우", isVip: false, items: [{ name: "데님 와이드팬츠", qty: 1 }], total: 55000, status: "cancel_request", address: "인천 남동구 논현로 55", phone: "010-****-5555" },
+  { id: "ORD-1006", createdAt: minsAgo(1200), customerName: "강나은", isVip: true, items: [{ name: "실크 블라우스", qty: 2 }, { name: "하이웨스트 팬츠", qty: 1 }], total: 189000, status: "shipped", address: "대구 수성구 범어동 44", phone: "010-****-9999" },
 ];
-
-// Make ORD-1009 paid
-(ALL_ORDERS[8] as Order).status = "paid";
 
 const PAGE_SIZE = 6;
 
@@ -106,18 +99,18 @@ const STATUS_COLOR: Record<OrderStatus, string> = {
   refunded: "bg-rose-50 text-rose-500",
 };
 
-function getTabOrders(tab: OrderTab): Order[] {
+function getTabOrders(tab: OrderTab, orders: Order[]): Order[] {
   switch (tab) {
     case "new":
-      return ALL_ORDERS.filter((o) => o.status === "paid");
+      return orders.filter((o) => o.status === "paid");
     case "unprocessed":
-      return ALL_ORDERS.filter((o) => o.status === "paid" || o.status === "preparing");
+      return orders.filter((o) => o.status === "paid" || o.status === "preparing");
     case "cancel":
-      return ALL_ORDERS.filter((o) =>
+      return orders.filter((o) =>
         o.status === "cancel_request" || o.status === "cancelled" || o.status === "refunded"
       );
     case "vip":
-      return ALL_ORDERS.filter((o) => o.isVip);
+      return orders.filter((o) => o.isVip);
   }
 }
 
@@ -292,7 +285,58 @@ export function Orders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const loaderRef = useRef<HTMLDivElement>(null);
 
-  const tabOrders = getTabOrders(activeTab);
+  // ── 데이터 상태 ──────────────────────────────────────
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const isConnected = localStorage.getItem("cafe24_connected") === "true";
+  const mallId = localStorage.getItem("cafe24_mall_id") ?? "";
+
+  // ── 카페24 주문 Fetch ─────────────────────────────────
+  const fetchOrders = useCallback(async () => {
+    if (!isConnected || !mallId) {
+      setOrders(MOCK_ORDERS);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const functions = getFunctions(app, "asia-northeast3");
+      const getOrders = httpsCallable<
+        { mallId: string; days: number },
+        { orders: Array<{
+            id: string; createdAt: string; customerName: string;
+            isVip: boolean; items: Array<{ name: string; qty: number }>;
+            total: number; status: string; address: string; phone: string;
+          }>
+        }
+      >(functions, "cafe24GetOrders");
+
+      const result = await getOrders({ mallId, days: 30 });
+      const mapped: Order[] = result.data.orders.map((o) => ({
+        ...o,
+        createdAt: new Date(o.createdAt),
+        status: o.status as Order["status"],
+      }));
+      setOrders(mapped);
+    } catch (err: unknown) {
+      console.error("[Orders] fetch 실패:", err);
+      const msg = err instanceof Error ? err.message : "주문 데이터를 불러오지 못했어요.";
+      setError(msg);
+      setOrders(MOCK_ORDERS); // fallback
+    } finally {
+      setLoading(false);
+    }
+  }, [isConnected, mallId]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  const tabOrders = getTabOrders(activeTab, orders);
   const visibleOrders = tabOrders.slice(0, page * PAGE_SIZE);
   const hasMore = visibleOrders.length < tabOrders.length;
 
@@ -327,7 +371,7 @@ export function Orders() {
         {/* Tabs */}
         <div className="flex overflow-x-auto scrollbar-hide -mx-4 px-4 gap-0">
           {TABS.map(({ key, label }) => {
-            const count = getTabOrders(key).length;
+            const count = loading ? null : getTabOrders(key, orders).length;
             const isActive = activeTab === key;
             return (
               <button
@@ -347,7 +391,7 @@ export function Orders() {
                     isActive ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-400"
                   )}
                 >
-                  {count}
+                  {loading ? "…" : count}
                 </span>
               </button>
             );
@@ -357,24 +401,88 @@ export function Orders() {
 
       {/* List */}
       <div className="flex-1 px-4 py-4 space-y-3">
-        {visibleOrders.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-48 text-gray-400 space-y-2">
-            <Package className="w-10 h-10 text-gray-200" />
-            <p className="text-sm">해당 주문이 없습니다.</p>
+
+        {/* 미연동 안내 */}
+        {!isConnected && !loading && (
+          <div className="flex flex-col items-center justify-center bg-blue-50 border border-blue-100 rounded-2xl py-6 px-4 text-center mb-2">
+            <Link2 className="w-8 h-8 text-blue-400 mb-2" />
+            <p className="text-sm font-semibold text-blue-700 mb-1">카페24 연동이 필요해요</p>
+            <p className="text-xs text-blue-500 mb-3">샘플 데이터가 표시되고 있어요. 설정에서 카페24를 연동하면 실시간 주문이 보여요.</p>
+            <a href="/settings" className="text-xs font-semibold text-white bg-blue-500 px-4 py-2 rounded-full">
+              설정 바로가기
+            </a>
           </div>
-        ) : (
-          visibleOrders.map((order) => (
-            <OrderCard key={order.id} order={order} onClick={() => setSelectedOrder(order)} />
-          ))
         )}
 
-        {/* Infinite scroll trigger */}
-        <div ref={loaderRef} className="h-4" />
-
-        {hasMore && (
-          <div className="flex justify-center py-2">
-            <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+        {/* 로딩 스켈레톤 */}
+        {loading && (
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 shadow-sm animate-pulse">
+                <div className="flex justify-between mb-2">
+                  <div className="h-3 w-16 bg-gray-100 rounded" />
+                  <div className="h-4 w-16 bg-gray-100 rounded-full" />
+                </div>
+                <div className="flex justify-between mb-1">
+                  <div className="h-4 w-20 bg-gray-100 rounded" />
+                  <div className="h-4 w-16 bg-gray-100 rounded" />
+                </div>
+                <div className="h-3 w-2/3 bg-gray-100 rounded mt-1" />
+              </div>
+            ))}
           </div>
+        )}
+
+        {/* 에러 */}
+        {!loading && error && (
+          <div className="flex flex-col items-center justify-center bg-red-50 border border-red-100 rounded-2xl py-5 px-4 text-center">
+            <AlertCircle className="w-7 h-7 text-red-400 mb-2" />
+            <p className="text-sm font-semibold text-red-700 mb-1">데이터를 불러오지 못했어요</p>
+            <p className="text-xs text-red-500 mb-3">{error}</p>
+            <button
+              onClick={fetchOrders}
+              className="flex items-center space-x-1.5 text-xs font-semibold text-white bg-red-500 px-4 py-2 rounded-full"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>다시 시도</span>
+            </button>
+          </div>
+        )}
+
+        {/* 주문 목록 */}
+        {!loading && (
+          <>
+            {visibleOrders.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-48 text-gray-400 space-y-2">
+                <Package className="w-10 h-10 text-gray-200" />
+                <p className="text-sm">해당 주문이 없습니다.</p>
+              </div>
+            ) : (
+              visibleOrders.map((order) => (
+                <OrderCard key={order.id} order={order} onClick={() => setSelectedOrder(order)} />
+              ))
+            )}
+
+            {/* Infinite scroll trigger */}
+            <div ref={loaderRef} className="h-4" />
+
+            {hasMore && (
+              <div className="flex justify-center py-2">
+                <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
+
+            {/* 새로고침 버튼 */}
+            {isConnected && orders.length > 0 && (
+              <button
+                onClick={fetchOrders}
+                className="flex items-center justify-center space-x-1.5 w-full py-3 text-xs text-gray-400 hover:text-gray-600"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>새로고침</span>
+              </button>
+            )}
+          </>
         )}
       </div>
 
