@@ -21,6 +21,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { InfoTooltip } from "../components/InfoTooltip";
 import { useProContext } from "../contexts/ProContext";
+import { useDashboardContext } from "../contexts/DashboardContext";
 import { BOARD_POSTS, type BoardPost } from "./Board";
 import { cn } from "../../utils/cn";
 
@@ -125,6 +126,7 @@ const MOCK_DATA = {
 
 export function Home() {
   const { isPro } = useProContext();
+  const { isEnabled } = useDashboardContext();
   const navigate = useNavigate();
 
   const [sectionOrder, setSectionOrder] = useState([
@@ -436,6 +438,7 @@ export function Home() {
             {sectionOrder.map((id) => {
               const section = sections[id];
               if (!section.content) return null;
+              if (!isEnabled(id)) return null;
               return (
                 <SortableSection key={id} id={id} title={section.title}>
                   {section.content}

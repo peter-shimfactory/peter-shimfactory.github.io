@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link2, Link2Off, MessageCircle, HelpCircle, ChevronRight, Bell, Zap, CheckCircle2, Crown, FlaskConical, Lock, X } from "lucide-react";
+import { Link2, Link2Off, MessageCircle, HelpCircle, ChevronRight, Bell, Zap, CheckCircle2, Crown, FlaskConical, Lock, X, LayoutDashboard, Pin } from "lucide-react";
 import { InfoTooltip } from "../components/InfoTooltip";
 import { cn } from "../../utils/cn";
 import { useProContext } from "../contexts/ProContext";
+import { useDashboardContext, REQUIRED_SECTIONS, OPTIONAL_SECTIONS } from "../contexts/DashboardContext";
 
 type BasicAlertKey = "unprocessed" | "cancelRefund" | "shippingDelay";
 type CustomAlertKey = "highValue" | "vipCustomer" | "lowStock" | "worstSupplier";
@@ -27,6 +28,8 @@ const CUSTOM_ALERTS: CustomAlertDef[] = [
 
 export function Settings() {
   const { isPro, setIsPro } = useProContext();
+  const { enabledOptionals, toggleOptional } = useDashboardContext();
+  const [showDashboardUpsell, setShowDashboardUpsell] = useState(false);
   const [isConnected, setIsConnected] = useState(
     () => localStorage.getItem("cafe24_connected") === "true"
   );
@@ -173,6 +176,115 @@ export function Settings() {
           </button>
         </div>
       )}
+
+      {/* Dashboard Section Settings */}
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold text-gray-500 px-1 flex items-center space-x-1.5">
+          <LayoutDashboard className="w-3.5 h-3.5" />
+          <span>대시보드 항목 설정</span>
+        </h2>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+
+          {/* 필수 항목 */}
+          <div className="px-4 pt-4 pb-2">
+            <div className="flex items-center space-x-1.5 mb-2">
+              <Pin className="w-3.5 h-3.5 text-gray-400" />
+              <span className="text-xs font-semibold text-gray-500">필수 노출 항목</span>
+              <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">항상 표시</span>
+            </div>
+            <ul className="space-y-2">
+              {REQUIRED_SECTIONS.map((sec) => (
+                <li key={sec.id} className="flex items-center justify-between py-2.5 px-3 bg-gray-50 rounded-xl">
+                  <span className="text-sm font-medium text-gray-700">{sec.label}</span>
+                  <div className="flex items-center space-x-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <span className="text-[10px] text-gray-400">필수</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mx-4 border-t border-gray-100 my-1" />
+
+          {/* 선택 항목 */}
+          <div className="px-4 pb-4 pt-2">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-gray-500">선택 노출 항목</span>
+              {!isPro && (
+                <span className="text-[10px] text-gray-400">{enabledOptionals.length}/1 선택</span>
+              )}
+            </div>
+
+            {/* FREE 업셀 배너 */}
+            {showDashboardUpsell && !isPro && (
+              <div className="mb-3 bg-indigo-50 border border-indigo-100 rounded-xl p-3 flex items-start justify-between gap-2">
+                <div className="flex items-start space-x-2">
+                  <Zap className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-semibold text-indigo-700">선택 항목을 더 추가하려면 PRO가 필요해요</p>
+                    <p className="text-[11px] text-indigo-500 mt-0.5">FREE 플랜은 선택 항목을 1개까지 대시보드에 표시할 수 있어요.</p>
+                    <button className="mt-2 inline-flex items-center space-x-1 bg-indigo-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full">
+                      <Zap className="w-3 h-3" />
+                      <span>PRO 14일 무료 체험</span>
+                    </button>
+                  </div>
+                </div>
+                <button onClick={() => setShowDashboardUpsell(false)} className="text-indigo-300 hover:text-indigo-500 shrink-0">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            <ul className="space-y-2">
+              {OPTIONAL_SECTIONS.map((sec) => {
+                const isChecked = enabledOptionals.includes(sec.id);
+                const isBlocked = !isPro && !isChecked && enabledOptionals.length >= 1;
+                return (
+                  <li
+                    key={sec.id}
+                    className={cn(
+                      "flex items-start justify-between py-2.5 px-3 rounded-xl border transition-colors",
+                      isChecked ? "bg-blue-50 border-blue-100" : "bg-gray-50 border-transparent",
+                      isBlocked && "opacity-50"
+                    )}
+                  >
+                    <div className="flex-1 pr-3">
+                      <span className="text-sm font-medium text-gray-800 block">{sec.label}</span>
+                      <span className="text-[11px] text-gray-400 mt-0.5 block">{sec.description}</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const result = toggleOptional(sec.id, isPro);
+                        if (result === "limit") setShowDashboardUpsell(true);
+                        else setShowDashboardUpsell(false);
+                      }}
+                      className={cn(
+                        "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none mt-0.5",
+                        isChecked ? "bg-blue-500" : "bg-gray-200"
+                      )}
+                      aria-pressed={isChecked}
+                    >
+                      <span
+                        className={cn(
+                          "inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform",
+                          isChecked ? "translate-x-6" : "translate-x-1"
+                        )}
+                      />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {!isPro && (
+              <p className="text-[11px] text-gray-400 mt-3 text-center">
+                FREE 플랜은 선택 항목 1개까지 · PRO는 전체 표시 가능
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Account Integration */}
       <section className="space-y-2">
