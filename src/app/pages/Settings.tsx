@@ -27,7 +27,13 @@ const CUSTOM_ALERTS: CustomAlertDef[] = [
 
 export function Settings() {
   const { isPro, setIsPro } = useProContext();
-  const [isConnected, setIsConnected] = useState(true);
+  const [isConnected, setIsConnected] = useState(
+    () => localStorage.getItem("cafe24_connected") === "true"
+  );
+  const [mallId, setMallId] = useState(
+    () => localStorage.getItem("cafe24_mall_id") || ""
+  );
+  const [showMallIdInput, setShowMallIdInput] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [basicAlerts, setBasicAlerts] = useState<Record<BasicAlertKey, boolean>>({
     unprocessed: true,
@@ -56,6 +62,42 @@ export function Settings() {
     }
     setCustomAlerts((prev) => ({ ...prev, [key]: checked }));
     if (!checked) setShowUpsell(false);
+  }
+
+  // 카페24 OAuth 인증 URL로 이동
+  const CAFE24_CLIENT_ID = import.meta.env.VITE_CAFE24_CLIENT_ID as string;
+  const REDIRECT_URI = "https://peter-shimfactory.github.io/auth/callback";
+  const SCOPES = [
+    "mall.read_order",
+    "mall.read_product",
+    "mall.read_customer",
+    "mall.read_supply",
+    "mall.read_shipment",
+  ].join(",");
+
+  function handleConnect() {
+    if (!mallId.trim()) {
+      setShowMallIdInput(true);
+      return;
+    }
+    const trimmed = mallId.trim().toLowerCase();
+    localStorage.setItem("cafe24_mall_id", trimmed);
+
+    const authUrl =
+      `https://${trimmed}.cafe24api.com/api/v2/oauth/authorize` +
+      `?response_type=code` +
+      `&client_id=${CAFE24_CLIENT_ID}` +
+      `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+      `&scope=${encodeURIComponent(SCOPES)}`;
+
+    window.location.href = authUrl;
+  }
+
+  function handleDisconnect() {
+    localStorage.removeItem("cafe24_connected");
+    localStorage.removeItem("cafe24_mall_id");
+    setIsConnected(false);
+    setMallId("");
   }
 
   return (
@@ -144,12 +186,14 @@ export function Settings() {
               <div>
                 <span className="block font-medium text-gray-900">카페24 쇼핑몰</span>
                 <span className="text-xs text-gray-500">
-                  {isConnected ? "myshop.cafe24.com (연동됨)" : "연동이 필요합니다."}
+                  {isConnected
+                    ? `${mallId || localStorage.getItem("cafe24_mall_id") || "연동됨"}.cafe24.com (연동됨)`
+                    : "연동이 필요합니다."}
                 </span>
               </div>
             </div>
-            <button 
-              onClick={() => setIsConnected(!isConnected)}
+            <button
+              onClick={isConnected ? handleDisconnect : handleConnect}
               className={cn(
                 "px-3 py-1.5 text-xs font-medium rounded-full transition-colors",
                 isConnected ? "bg-gray-100 text-gray-700 hover:bg-gray-200" : "bg-blue-600 text-white hover:bg-blue-700"
@@ -158,6 +202,32 @@ export function Settings() {
               {isConnected ? "해제" : "연동하기"}
             </button>
           </div>
+
+          {/* 쇼핑몰 ID 입력창 (미연동 상태에서만 표시) */}
+          {!isConnected && showMallIdInput && (
+            <div className="px-4 pb-4 space-y-2 border-t border-gray-100 pt-3">
+              <p className="text-xs text-gray-500">카페24 쇼핑몰 ID를 입력해 주세요.</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={mallId}
+                  onChange={(e) => setMallId(e.target.value)}
+                  placeholder="예: myshop"
+                  className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <button
+                  onClick={handleConnect}
+                  disabled={!mallId.trim()}
+                  className="px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg disabled:opacity-40"
+                >
+                  인증 시작
+                </button>
+              </div>
+              <p className="text-[11px] text-gray-400">
+                카페24 관리자 페이지 URL에서 확인: <span className="font-mono">https://[여기].cafe24.com</span>
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

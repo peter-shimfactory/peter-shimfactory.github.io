@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { app } from "../../lib/firebase";
 
 type Status = "loading" | "success" | "error";
 
@@ -26,18 +27,44 @@ export function AuthCallback() {
       return;
     }
 
-    // TODO: Firebase Functions를 통해 code → access_token 교환
-    // 현재는 code 수신 확인까지만 처리
-    console.info("[AuthCallback] 인증코드 수신 완료:", code);
+    // mallId: URL params 또는 localStorage에서 읽기
+    const mallId = params.get("mall_id") || localStorage.getItem("cafe24_mall_id");
 
-    setStatus("success");
-    setMessage("인증코드를 받았어요! 곧 토큰 교환 기능이 연결됩니다.");
+    if (!mallId) {
+      setStatus("error");
+      setMessage("쇼핑몰 ID를 찾을 수 없어요. 설정 페이지에서 다시 연동해 주세요.");
+      return;
+    }
 
-    const timer = setTimeout(() => {
-      navigate("/", { replace: true });
-    }, 2500);
+    // Firebase Functions를 통해 code → access_token 교환
+    (async () => {
+      try {
+        const { getFunctions, httpsCallable } = await import("firebase/functions");
+        const functions = getFunctions(app, "asia-northeast3");
+        const exchangeToken = httpsCallable<
+          { code: string; mallId: string },
+          { success: boolean; mallId: string; userId: string; expiresAt: string }
+        >(functions, "cafe24ExchangeToken");
 
-    return () => clearTimeout(timer);
+        const result = await exchangeToken({ code, mallId });
+
+        if (result.data.success) {
+          localStorage.setItem("cafe24_mall_id", result.data.mallId);
+          localStorage.setItem("cafe24_connected", "true");
+
+          setStatus("success");
+          setMessage("카페24 연동이 완료됐어요! 이제 실시간 데이터를 확인할 수 있어요.");
+
+          setTimeout(() => navigate("/", { replace: true }), 2500);
+        } else {
+          throw new Error("토큰 교환 응답 오류");
+        }
+      } catch (err) {
+        console.error("[AuthCallback] 토큰 교환 실패:", err);
+        setStatus("error");
+        setMessage("토큰 교환에 실패했어요. 잠시 후 다시 시도해 주세요.");
+      }
+    })();
   }, [navigate]);
 
   return (
