@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>업텐도 — 카페24 사장님을 위한 운영 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream:    #F6F2EB;
+    --ink:      #1C1814;
+    --ink-soft: #4A4540;
+    --green:    #2B5C40;
+    --green-mid:#3E7A58;
+    --green-lt: #D6EAE0;
+    --orange:   #D95C2F;
+    --orange-lt:#FAEAE3;
+    --gold:     #C9A84C;
+    --rule:     #D8D2C8;
+    --white:    #FDFAF5;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ─── UTIL ─── */
+  .serif { font-family: 'DM Serif Display', serif; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 clamp(1.25rem, 5vw, 4rem); }
+  .tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+  }
+  .tag-green  { background: var(--green); color: var(--cream); }
+  .tag-orange { background: var(--orange); color: #fff; }
+  .tag-outline { border: 1.5px solid var(--ink); color: var(--ink); }
+  hr.rule { border: none; border-top: 1px solid var(--rule); margin: 0; }
+
+  /* fade-in on scroll */
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1); }
+  .reveal.visible { opacity: 1; transform: none; }
+  .reveal-delay-1 { transition-delay: .08s; }
+  .reveal-delay-2 { transition-delay: .16s; }
+  .reveal-delay-3 { transition-delay: .24s; }
+  .reveal-delay-4 { transition-delay: .32s; }
+
+  /* ─── MASTHEAD ─── */
+  .masthead {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.4rem clamp(1.25rem, 5vw, 4rem);
+    border-bottom: 1px solid var(--rule);
+  }
+  .logo { font-weight: 900; font-size: 1.25rem; letter-spacing: -0.03em; color: var(--green); }
+  .logo span { color: var(--ink); }
+  .masthead-right { font-size: 0.8rem; color: var(--ink-soft); }
+
+  /* ─── HERO ─── */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 3rem;
+    align-items: center;
+    padding: clamp(4rem, 10vw, 8rem) clamp(1.25rem, 5vw, 4rem);
+    min-height: 85vh;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 100% 50%, oklch(50% .12 150 / .08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-kicker {
+    display: flex; align-items: center; gap: .6rem;
+    margin-bottom: 2rem;
+  }
+  .hero-kicker-line { width: 32px; height: 2px; background: var(--green); }
+  .hero-kicker-text { font-size: .78rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--green); }
+  .hero-h1 {
+    font-size: clamp(2.8rem, 6vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    margin-bottom: 2rem;
+  }
+  .hero-h1 em { font-style: normal; color: var(--green); }
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    color: var(--ink-soft);
+    max-width: 540px;
+    line-height: 1.7;
+    margin-bottom: 2.8rem;
+  }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .85rem 2rem; border-radius: 3px;
+    font-size: .9rem; font-weight: 700; cursor: pointer; text-decoration: none;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary { background: var(--green); color: var(--white); box-shadow: 0 4px 20px oklch(40% .14 150 / .25); }
+  .btn-primary:hover { box-shadow: 0 8px 28px oklch(40% .14 150 / .35); }
+  .btn-ghost { border: 1.5px solid var(--ink); color: var(--ink); background: transparent; }
+  .btn-ghost:hover { background: var(--ink); color: var(--cream); }
+
+  /* Phone Mockup */
+  .phone-wrap { flex-shrink: 0; }
+  .phone {
+    width: 230px;
+    background: var(--ink);
+    border-radius: 36px;
+    padding: 14px;
+    box-shadow: 0 32px 80px oklch(20% .05 50 / .35), 0 0 0 1px oklch(30% .05 50 / .2);
+    position: relative;
+  }
+  .phone-notch {
+    width: 80px; height: 8px; background: #111; border-radius: 10px;
+    margin: 0 auto 10px;
+  }
+  .phone-screen {
+    background: #F4F1EC;
+    border-radius: 24px;
+    padding: 12px 10px;
+    min-height: 420px;
+    overflow: hidden;
+  }
+  .ps-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .ps-title { font-size: 11px; font-weight: 900; color: var(--ink); }
+  .ps-sync { font-size: 8px; color: var(--ink-soft); display: flex; align-items: center; gap: 3px; }
+  .ps-sync::before { content: '●'; color: #4CAF50; font-size: 6px; }
+
+  .ps-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 7px;
+    border: 1px solid var(--rule);
+  }
+  .ps-card-label { font-size: 8px; color: var(--ink-soft); font-weight: 600; margin-bottom: 5px; }
+  .ps-card-row { display: flex; gap: 5px; }
+  .ps-metric {
+    flex: 1; background: var(--cream); border-radius: 6px; padding: 6px;
+    text-align: center;
+  }
+  .ps-metric-val { font-size: 13px; font-weight: 800; color: var(--green); line-height: 1; }
+  .ps-metric-sub { font-size: 7px; color: var(--ink-soft); margin-top: 2px; }
+
+  .ps-card-green { background: var(--green-lt); border-color: var(--green-lt); }
+  .ps-bar-wrap { margin-top: 6px; }
+  .ps-bar-label { display: flex; justify-content: space-between; font-size: 7px; color: var(--ink-soft); margin-bottom: 3px; }
+  .ps-bar-track { height: 5px; background: #D8D2C8; border-radius: 3px; overflow: hidden; }
+  .ps-bar-fill { height: 100%; background: var(--green); border-radius: 3px; width: 40%; }
+
+  .ps-issue { margin-bottom: 4px; }
+  .ps-issue-row { display: flex; justify-content: space-between; align-items: center; font-size: 8px; padding: 4px 0; border-bottom: .5px solid #eee; }
+  .ps-issue-label { color: var(--ink-soft); }
+  .ps-issue-val { font-weight: 700; color: var(--ink); }
+  .ps-issue-val.red { color: #C0392B; }
+  .ps-blur { filter: blur(3px); user-select: none; }
+
+  .ps-nav {
+    display: flex; justify-content: space-around; align-items: center;
+    padding-top: 10px; border-top: 1px solid var(--rule); margin-top: 4px;
+  }
+  .ps-nav-item { text-align: center; }
+  .ps-nav-icon { font-size: 14px; }
+  .ps-nav-text { font-size: 7px; color: var(--ink-soft); display: block; }
+  .ps-nav-item.active .ps-nav-icon { color: var(--green); }
+  .ps-nav-item.active .ps-nav-text { color: var(--green); font-weight: 700; }
+
+  /* decoration */
+  .hero-deco {
+    position: absolute;
+    right: -3rem; bottom: 6rem;
+    font-size: 14rem;
+    font-family: 'DM Serif Display', serif;
+    color: oklch(60% .1 150 / .05);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* ─── PAIN ─── */
+  .pain {
+    background: var(--ink);
+    color: var(--white);
+    padding: clamp(4rem, 8vw, 7rem) clamp(1.25rem, 5vw, 4rem);
+  }
+  .pain-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 2fr; gap: 4rem; align-items: start;
+  }
+  .pain-left h2 { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.15; font-weight: 900; letter-spacing: -.02em; }
+  .pain-left h2 em { font-style: normal; color: var(--gold); }
+  .pain-left p { margin-top: 1.2rem; font-size: .9rem; color: oklch(85% .01 90); line-height: 1.8; }
+  .pain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: oklch(40% .02 80 / .3); border: 1px solid oklch(40% .02 80 / .3); }
+  .pain-item { background: oklch(18% .02 80); padding: 1.8rem; }
+  .pain-item-num { font-family: 'DM Serif Display', serif; font-size: 3rem; color: oklch(50% .02 80); line-height: 1; margin-bottom: .6rem; }
+  .pain-item-head { font-size: 1rem; font-weight: 700; margin-bottom: .5rem; }
+  .pain-item-body { font-size: .85rem; color: oklch(75% .01 90); line-height: 1.7; }
+
+  /* ─── FEATURES ─── */
+  .features { padding: clamp(4rem, 8vw, 8rem) 0; }
+
+  .section-header {
+    display: flex; flex-direction: column; gap: .8rem;
+    padding: 0 clamp(1.25rem, 5vw, 4rem);
+    margin-bottom: clamp(3rem, 6vw, 5rem);
+  }
+  .section-header h2 {
+    font-size: clamp(2rem, 4.5vw, 3.8rem);
+    font-weight: 900; letter-spacing: -.03em; line-height: 1.1;
+  }
+  .section-header h2 em { font-style: normal; color: var(--green); }
+  .section-header p { font-size: 1.05rem; color: var(--ink-soft); max-width: 520px; line-height: 1.75; }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--rule);
+    border-right: none; border-bottom: none;
+    margin: 0 clamp(1.25rem, 5vw, 4rem);
+  }
+  .feature-item {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 2rem 1.8rem;
+    position: relative;
+    transition: background .2s;
+  }
+  .feature-item:hover { background: var(--green-lt); }
+  .feature-item.mandatory::before {
+    content: '필수';
+    position: absolute; top: 1rem; right: 1rem;
+    font-size: .65rem; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase;
+    background: var(--green); color: var(--white);
+    padding: 2px 7px; border-radius: 2px;
+  }
+  .feature-item.optional::before {
+    content: '선택';
+    position: absolute; top: 1rem; right: 1rem;
+    font-size: .65rem; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase;
+    border: 1.5px solid var(--rule); color: var(--ink-soft);
+    padding: 2px 7px; border-radius: 2px;
+  }
+  .fi-icon { font-size: 2rem; margin-bottom: 1rem; }
+  .fi-title { font-size: 1.05rem; font-weight: 800; margin-bottom: .5rem; letter-spacing: -.01em; }
+  .fi-body { font-size: .85rem; color: var(--ink-soft); line-height: 1.7; }
+  .fi-pro {
+    display: inline-flex; align-items: center; gap: .3rem;
+    margin-top: .8rem; font-size: .75rem; font-weight: 700; color: var(--gold);
+  }
+  .fi-pro::before { content: '⚡'; }
+
+  /* ─── PLAN COMPARE ─── */
+  .plans { padding: clamp(4rem, 8vw, 8rem) clamp(1.25rem, 5vw, 4rem); background: var(--green); }
+  .plans-inner { max-width: 1200px; margin: 0 auto; }
+  .plans h2 {
+    font-size: clamp(2rem, 4.5vw, 3.5rem);
+    font-weight: 900; letter-spacing: -.03em; color: var(--white); line-height: 1.1;
+    margin-bottom: .8rem;
+  }
+  .plans h2 em { font-style: normal; color: var(--gold); }
+  .plans-sub { color: oklch(90% .05 150); font-size: 1rem; margin-bottom: 3rem; }
+
+  .plan-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .plan-table th {
+    padding: 1.2rem 1.5rem; text-align: left;
+    font-size: .85rem; font-weight: 700;
+    border-bottom: 2px solid oklch(50% .1 150 / .4);
+    color: oklch(80% .04 150);
+  }
+  .plan-table th.col-free { text-align: center; }
+  .plan-table th.col-pro { text-align: center; background: oklch(50% .14 150 / .25); border-radius: 6px 6px 0 0; }
+  .plan-table td {
+    padding: .95rem 1.5rem;
+    font-size: .9rem; color: oklch(92% .02 150);
+    border-bottom: 1px solid oklch(50% .1 150 / .2);
+    vertical-align: middle;
+  }
+  .plan-table td.col-free { text-align: center; }
+  .plan-table td.col-pro { text-align: center; background: oklch(50% .14 150 / .2); }
+  .plan-table tr:last-child td { border-bottom: none; }
+  .check { color: #73D69A; font-size: 1.1rem; }
+  .cross { color: oklch(50% .1 150); font-size: 1.1rem; }
+  .pro-badge { background: var(--gold); color: var(--ink); padding: 2px 8px; border-radius: 2px; font-size: .7rem; font-weight: 800; }
+
+  .plan-header-wrap { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 3rem; flex-wrap: wrap; gap: 1.5rem; }
+  .pro-card {
+    background: var(--gold); color: var(--ink);
+    padding: 1.5rem 2rem; border-radius: 6px;
+    max-width: 280px;
+  }
+  .pro-card-title { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .4rem; }
+  .pro-card-body { font-size: .9rem; font-weight: 600; line-height: 1.5; }
+  .pro-card-cta {
+    display: inline-block; margin-top: 1rem;
+    background: var(--ink); color: var(--gold);
+    padding: .6rem 1.2rem; border-radius: 3px;
+    font-size: .8rem; font-weight: 800; text-decoration: none;
+    transition: transform .15s;
+  }
+  .pro-card-cta:hover { transform: translateY(-2px); }
+
+  /* ─── REPORTS ─── */
+  .reports { padding: clamp(4rem, 8vw, 8rem) 0; background: var(--white); }
+
+  .report-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    padding: 0 clamp(1.25rem, 5vw, 4rem);
+  }
+  .report-card {
+    border: 1.5px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .report-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px oklch(20% .05 80 / .15); }
+  .rc-header { padding: 1.4rem 1.4rem 1rem; }
+  .rc-type { font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin-bottom: .8rem; }
+  .rc-type.b { color: #2563EB; }
+  .rc-type.r { color: #7C3AED; }
+  .rc-type.o { color: #D97706; }
+  .rc-type.t { color: var(--green-mid); }
+  .rc-kpi { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .8rem; }
+  .rc-chip { background: var(--cream); border: 1px solid var(--rule); border-radius: 999px; padding: 3px 10px; font-size: .72rem; color: var(--ink-soft); }
+  .rc-title { font-size: .95rem; font-weight: 800; line-height: 1.3; color: var(--ink); }
+  .rc-body { padding: 1rem 1.4rem; border-top: 1px solid var(--rule); background: var(--cream); }
+  .rc-quote { font-size: .8rem; color: var(--ink-soft); font-style: italic; line-height: 1.6; }
+  .rc-footer { padding: .8rem 1.4rem; display: flex; justify-content: space-between; align-items: center; font-size: .7rem; color: var(--ink-soft); }
+  .rc-pro { color: var(--green); font-weight: 700; display: flex; align-items: center; gap: .3rem; }
+  .rc-pro::before { content: '🔓'; font-size: .8rem; }
+
+  /* ─── INTEGRATION ─── */
+  .integration {
+    padding: clamp(4rem, 8vw, 8rem) clamp(1.25rem, 5vw, 4rem);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;
+    max-width: 1200px; margin: 0 auto;
+  }
+  .int-left h2 { font-size: clamp(1.8rem, 3.5vw, 3rem); font-weight: 900; letter-spacing: -.03em; line-height: 1.15; margin-bottom: 1.5rem; }
+  .int-left h2 em { font-style: normal; color: var(--green); }
+  .int-left p { font-size: .95rem; color: var(--ink-soft); line-height: 1.8; margin-bottom: 2rem; }
+
+  .steps { display: flex; flex-direction: column; gap: 0; }
+  .step {
+    display: flex; gap: 1.4rem; align-items: flex-start;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--green); color: var(--white);
+    display: grid; place-items: center;
+    font-size: .85rem; font-weight: 800; flex-shrink: 0;
+  }
+  .step-body h3 { font-size: .95rem; font-weight: 800; margin-bottom: .3rem; }
+  .step-body p { font-size: .85rem; color: var(--ink-soft); line-height: 1.65; }
+
+  .scope-list { display: flex; flex-direction: column; gap: .8rem; }
+  .scope-item {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--white); border: 1px solid var(--rule);
+    padding: .9rem 1.2rem; border-radius: 4px;
+    font-size: .85rem;
+  }
+  .scope-name { font-weight: 700; color: var(--ink); }
+  .scope-desc { font-size: .78rem; color: var(--ink-soft); }
+  .scope-badge { background: var(--green-lt); color: var(--green); font-size: .68rem; font-weight: 700; padding: 2px 8px; border-radius: 2px; }
+
+  /* ─── STATS ROW ─── */
+  .stats-row {
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: var(--white);
+  }
+  .stat-cell {
+    padding: 2.5rem 2rem;
+    border-right: 1px solid var(--rule);
+    text-align: center;
+  }
+  .stat-cell:last-child { border-right: none; }
+  .stat-val { font-family: 'DM Serif Display', serif; font-size: 3.2rem; color: var(--green); line-height: 1; }
+  .stat-label { font-size: .82rem; color: var(--ink-soft); margin-top: .5rem; }
+
+  /* ─── CTA ─── */
+  .cta {
+    background: var(--ink);
+    padding: clamp(5rem, 10vw, 9rem) clamp(1.25rem, 5vw, 4rem);
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .cta::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 100%, oklch(45% .16 150 / .18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-inner { max-width: 700px; margin: 0 auto; position: relative; }
+  .cta h2 {
+    font-size: clamp(2.2rem, 5vw, 4.5rem);
+    font-weight: 900; letter-spacing: -.03em; color: var(--white); line-height: 1.1;
+    margin-bottom: 1.2rem;
+  }
+  .cta h2 em { font-style: normal; color: var(--gold); }
+  .cta p { font-size: 1.05rem; color: oklch(80% .02 90); line-height: 1.7; margin-bottom: 2.5rem; }
+  .cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-cta { background: var(--gold); color: var(--ink); font-size: 1rem; padding: 1rem 2.4rem; }
+  .btn-cta:hover { background: oklch(85% .15 85); box-shadow: 0 8px 30px var(--gold); }
+  .cta-note { margin-top: 1.2rem; font-size: .82rem; color: oklch(60% .02 90); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 2.5rem clamp(1.25rem, 5vw, 4rem);
+    border-top: 1px solid #2A2520;
+    background: #111;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-logo { font-size: 1rem; font-weight: 900; color: var(--gold); letter-spacing: -.02em; }
+  .footer-right { font-size: .78rem; color: #666; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .phone-wrap { display: flex; justify-content: center; }
+    .pain-inner { grid-template-columns: 1fr; }
+    .feature-grid { grid-template-columns: 1fr 1fr; }
+    .report-grid { grid-template-columns: 1fr 1fr; }
+    .integration { grid-template-columns: 1fr; gap: 3rem; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .stat-cell:nth-child(2) { border-right: none; }
+    .stat-cell:nth-child(3) { border-right: 1px solid var(--rule); }
+  }
+  @media (max-width: 640px) {
+    .feature-grid { grid-template-columns: 1fr; }
+    .pain-grid { grid-template-columns: 1fr; }
+    .report-grid { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .plan-table { font-size: .8rem; }
+    .plan-table th, .plan-table td { padding: .75rem .75rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="logo">업텐도<span>.</span></div>
+  <div class="masthead-right">카페24 공식 파트너 앱 · 2026</div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-kicker reveal">
+      <div class="hero-kicker-line"></div>
+      <span class="hero-kicker-text">카페24 쇼핑몰 운영 대시보드</span>
+    </div>
+    <h1 class="hero-h1 reveal reveal-delay-1">
+      스마트폰 하나로<br>
+      쇼핑몰<br>
+      <em>전체를 지휘</em>하다.
+    </h1>
+    <p class="hero-sub reveal reveal-delay-2">
+      매출·주문·CS·공급사 현황을 10분 실시간으로.<br>
+      카페24와 연동하면 데이터가 알아서 흐릅니다.
+    </p>
+    <div class="hero-actions reveal reveal-delay-3">
+      <a href="#cta" class="btn btn-primary">14일 무료 체험 시작</a>
+      <a href="#features" class="btn btn-ghost">기능 살펴보기</a>
+    </div>
+  </div>
+
+  <div class="phone-wrap reveal reveal-delay-2">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <!-- Header -->
+        <div class="ps-header">
+          <div class="ps-title">업텐도 대시보드</div>
+          <div class="ps-sync">10분 전 동기화</div>
+        </div>
+
+        <!-- 매출 카드 -->
+        <div class="ps-card">
+          <div class="ps-card-label">외형 매출과 실질 마진</div>
+          <div class="ps-card-row">
+            <div class="ps-metric">
+              <div class="ps-metric-val">+4.2M</div>
+              <div class="ps-metric-sub">오늘 예상 마진</div>
+            </div>
+            <div class="ps-metric">
+              <div class="ps-metric-val">214</div>
+              <div class="ps-metric-sub">신규 주문</div>
+            </div>
+            <div class="ps-metric">
+              <div class="ps-metric-val">15.4M</div>
+              <div class="ps-metric-sub">총 결제</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 신규 고객 카드 -->
+        <div class="ps-card ps-card-green">
+          <div class="ps-card-label">신규 가입자 구매 전환</div>
+          <div class="ps-card-row">
+            <div class="ps-metric" style="background:#fff">
+              <div class="ps-metric-val" style="font-size:18px;color:#2B5C40">20</div>
+              <div class="ps-metric-sub">신규 가입</div>
+            </div>
+            <div class="ps-metric" style="background:#fff">
+              <div class="ps-metric-val">8</div>
+              <div class="ps-metric-sub">첫 결제</div>
+            </div>
+            <div class="ps-metric" style="background:#fff">
+              <div class="ps-metric-val">40%</div>
+              <div class="ps-metric-sub">전환율</div>
+            </div>
+          </div>
+          <div class="ps-bar-wrap">
+            <div class="ps-bar-label"><span>첫 결제 전환율</span><span>40%</span></div>
+            <div class="ps-bar-track"><div class="ps-bar-fill"></div></div>
+          </div>
+        </div>
+
+        <!-- 이슈 카드 -->
+        <div class="ps-card">
+          <div class="ps-card-label">운영 병목 및 리스크</div>
+          <div class="ps-issue">
+            <div class="ps-issue-row"><span class="ps-issue-label">미처리 주문</span><span class="ps-issue-val red">42건</span></div>
+            <div class="ps-issue-row"><span class="ps-issue-label">취소/환불 요청</span><span class="ps-issue-val red">18건</span></div>
+            <div class="ps-issue-row"><span class="ps-issue-label">합배송 지연</span><span class="ps-issue-val ps-blur">7건</span></div>
+          </div>
+        </div>
+
+        <!-- Nav -->
+        <div class="ps-nav">
+          <div class="ps-nav-item active"><div class="ps-nav-icon">🏠</div><span class="ps-nav-text">홈</span></div>
+          <div class="ps-nav-item"><div class="ps-nav-icon">📋</div><span class="ps-nav-text">보드</span></div>
+          <div class="ps-nav-item"><div class="ps-nav-icon">📦</div><span class="ps-nav-text">주문</span></div>
+          <div class="ps-nav-item"><div class="ps-nav-icon">📊</div><span class="ps-nav-text">리포트</span></div>
+          <div class="ps-nav-item"><div class="ps-nav-icon">⚙️</div><span class="ps-nav-text">설정</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-deco">UP</div>
+</section>
+
+<!-- STATS ROW -->
+<div class="stats-row">
+  <div class="stat-cell reveal">
+    <div class="stat-val">10분</div>
+    <div class="stat-label">자동 데이터 동기화 주기</div>
+  </div>
+  <div class="stat-cell reveal reveal-delay-1">
+    <div class="stat-val">5종</div>
+    <div class="stat-label">카페24 API 연동 스코프</div>
+  </div>
+  <div class="stat-cell reveal reveal-delay-2">
+    <div class="stat-val">6개</div>
+    <div class="stat-label">커스터마이즈 대시보드 섹션</div>
+  </div>
+  <div class="stat-cell reveal reveal-delay-3">
+    <div class="stat-val">4종</div>
+    <div class="stat-label">주간 인사이트 리포트</div>
+  </div>
+</div>
+
+<hr class="rule" />
+
+<!-- PAIN POINTS -->
+<section class="pain">
+  <div class="pain-inner">
+    <div class="pain-left reveal">
+      <h2>사장님이<br>매일 겪는<br><em>4가지 고통</em></h2>
+      <p>PC를 켜야만 확인할 수 있는 주문.<br>어디서 문제가 터졌는지 모르는 공급사.<br>쌓여가는 CS. 뭘 믿어야 할지 모르는 숫자들.</p>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-item reveal">
+        <div class="pain-item-num">01</div>
+        <div class="pain-item-head">이동 중엔 주문 확인이 불편해요</div>
+        <div class="pain-item-body">PC 앞에 앉아야만 쇼핑몰 현황을 볼 수 있어 외출 중엔 늘 불안합니다.</div>
+      </div>
+      <div class="pain-item reveal reveal-delay-1">
+        <div class="pain-item-num">02</div>
+        <div class="pain-item-head">어느 공급사가 문제인지 모르겠어요</div>
+        <div class="pain-item-body">배송 지연·불량 원인이 어느 거래처인지 파악하는 데 반나절이 걸립니다.</div>
+      </div>
+      <div class="pain-item reveal reveal-delay-2">
+        <div class="pain-item-num">03</div>
+        <div class="pain-item-head">신규 고객을 단골로 만들 타이밍을 놓쳐요</div>
+        <div class="pain-item-body">처음 가입한 고객이 첫 구매를 하는지 실시간으로 알 방법이 없습니다.</div>
+      </div>
+      <div class="pain-item reveal reveal-delay-3">
+        <div class="pain-item-num">04</div>
+        <div class="pain-item-head">매주 성과를 정리하기가 너무 번거로워요</div>
+        <div class="pain-item-body">엑셀로 수기 집계하는 주간 보고서, 이제 자동으로 받아보세요.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-header">
+    <span class="tag tag-green reveal">대시보드</span>
+    <h2 class="reveal reveal-delay-1">6가지 섹션,<br><em>한 화면</em>에서 모두.</h2>
+    <p class="reveal reveal-delay-2">필수 3개는 항상 표시, 선택 3개는 원하는 대로 켜고 끄세요.<br>드래그로 순서도 바꿀 수 있습니다.</p>
+  </div>
+
+  <div class="feature-grid">
+    <!-- 필수 섹션 3개 -->
+    <div class="feature-item mandatory reveal">
+      <div class="fi-icon">💰</div>
+      <h3 class="fi-title">외형 매출과 실질 마진</h3>
+      <p class="fi-body">오늘의 예상 마진·총 결제 매출·신규 주문 수를 공급사별 원가율을 반영해 실시간으로 산출합니다.</p>
+    </div>
+    <div class="feature-item mandatory reveal reveal-delay-1">
+      <div class="fi-icon">⚠️</div>
+      <h3 class="fi-title">운영 병목 및 리스크 식별</h3>
+      <p class="fi-body">미처리 주문, 취소/환불 요청, 합배송 지연 묶임 건수를 한눈에 확인하고 즉각 대응합니다.</p>
+      <span class="fi-pro">PRO — 합배송 지연 상세 열람</span>
+    </div>
+    <div class="feature-item mandatory reveal reveal-delay-2">
+      <div class="fi-icon">🏭</div>
+      <h3 class="fi-title">공급사 성과 및 문제 추적</h3>
+      <p class="fi-body">워스트 공급사 TOP3 문제 사유와 전체 공급사 랭킹을 자동 분석합니다.</p>
+      <span class="fi-pro">PRO — 문제 사유 상세 열람</span>
+    </div>
+
+    <!-- 선택 섹션 3개 -->
+    <div class="feature-item optional reveal">
+      <div class="fi-icon">👑</div>
+      <h3 class="fi-title">단골/VIP 고객 현황</h3>
+      <p class="fi-body">재구매 3회 이상 단골 고객의 신규 주문을 실시간으로 파악하고 즉시 대응합니다.</p>
+      <span class="fi-pro">PRO — 주문 수 열람</span>
+    </div>
+    <div class="feature-item optional reveal reveal-delay-1">
+      <div class="fi-icon">📦</div>
+      <h3 class="fi-title">재고 방어 및 주력 상품 모니터링</h3>
+      <p class="fi-body">품절 임박 상품의 잔여 재고 수량을 추적해 기회 손실을 사전에 방어합니다.</p>
+      <span class="fi-pro">PRO — 재고 수량 열람</span>
+    </div>
+    <div class="feature-item optional reveal reveal-delay-2">
+      <div class="fi-icon">🌱</div>
+      <h3 class="fi-title">신규 가입자 구매 전환</h3>
+      <p class="fi-body">오늘 신규 가입한 고객이 첫 결제로 이어졌는지 전환율과 첫 구매 매출을 실시간 추적합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PLAN COMPARE -->
+<section class="plans">
+  <div class="plans-inner">
+    <div class="plan-header-wrap">
+      <div>
+        <h2 class="reveal">FREE로 시작하고,<br><em>PRO</em>로 성장하세요.</h2>
+        <p class="plans-sub reveal reveal-delay-1">지금 바로 무료로 시작할 수 있습니다. 업그레이드는 언제든지.</p>
+      </div>
+      <div class="pro-card reveal reveal-delay-2">
+        <div class="pro-card-title">PRO 플랜</div>
+        <div class="pro-card-body">14일 무료 체험 후 중단 없이<br>모든 기능을 활용하세요.</div>
+        <a href="#cta" class="pro-card-cta">14일 무료 체험 →</a>
+      </div>
+    </div>
+
+    <table class="plan-table reveal">
+      <thead>
+        <tr>
+          <th style="width:50%">기능</th>
+          <th class="col-free" style="width:25%">FREE</th>
+          <th class="col-pro" style="width:25%"><span class="pro-badge">PRO</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>필수 대시보드 3종</td>
+          <td class="col-free"><span class="check">✓</span></td>
+          <td class="col-pro"><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>선택 대시보드 섹션 활성화</td>
+          <td class="col-free">1개</td>
+          <td class="col-pro"><span class="check">무제한</span></td>
+        </tr>
+        <tr>
+          <td>VIP·재고·공급사 상세 수치 열람</td>
+          <td class="col-free"><span class="cross">잠금</span></td>
+          <td class="col-pro"><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>주문 관리 (카페24 실데이터)</td>
+          <td class="col-free"><span class="check">✓</span></td>
+          <td class="col-pro"><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>CS·리뷰 보드 관리</td>
+          <td class="col-free"><span class="check">✓</span></td>
+          <td class="col-pro"><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>기본 운영 알림 3종</td>
+          <td class="col-free"><span class="check">✓</span></td>
+          <td class="col-pro"><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>맞춤형 조건 알림</td>
+          <td class="col-free">1개</td>
+          <td class="col-pro"><span class="check">무제한</span></td>
+        </tr>
+        <tr>
+          <td>주간 인사이트 리포트 열람</td>
+          <td class="col-free">미리보기</td>
+          <td class="col-pro"><span class="check">전체 열람</span></td>
+        </tr>
+        <tr>
+          <td>전체 리포트 새 창 출력</td>
+          <td class="col-free"><span class="cross">잠금</span></td>
+          <td class="col-pro"><span class="check">✓</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- REPORTS -->
+<section class="reports">
+  <div class="section-header container">
+    <span class="tag tag-outline reveal">주간 리포트</span>
+    <h2 class="reveal reveal-delay-1">숫자가 아닌<br><em>이야기</em>로 전달합니다.</h2>
+    <p class="reveal reveal-delay-2">매주 4가지 관점에서 쇼핑몰 현황을 사장님 언어로 정리해드립니다.</p>
+  </div>
+
+  <div class="report-grid">
+    <div class="report-card reveal">
+      <div class="rc-header">
+        <div class="rc-type b">BUSINESS BRIEFING</div>
+        <div class="rc-kpi"><span class="rc-chip">매출 +12%</span><span class="rc-chip">마진 31%</span></div>
+        <div class="rc-title">이번 주 총 결제 1,240만원, 지난주 대비 12% 상승</div>
+      </div>
+      <div class="rc-body">
+        <p class="rc-quote">"원가율 대비 실질 마진이 늘어난 주였어요. 공급사 A의 기여가 컸습니다."</p>
+      </div>
+      <div class="rc-footer"><span>5월 4주차</span><span class="rc-pro">PRO 전체 열람</span></div>
+    </div>
+
+    <div class="report-card reveal reveal-delay-1">
+      <div class="rc-header">
+        <div class="rc-type r">CUSTOMER REVIEW</div>
+        <div class="rc-kpi"><span class="rc-chip">긍정 85%</span><span class="rc-chip">미답변 12건</span></div>
+        <div class="rc-title">미답변 리뷰 12건, 지금 답변하면 재구매율 20% 상승</div>
+      </div>
+      <div class="rc-body">
+        <p class="rc-quote">"진심 어린 답변 하나가 단골을 만듭니다. 놓치지 마세요."</p>
+      </div>
+      <div class="rc-footer"><span>5월 3주차</span><span class="rc-pro">PRO 전체 열람</span></div>
+    </div>
+
+    <div class="report-card reveal reveal-delay-2">
+      <div class="rc-header">
+        <div class="rc-type o">OPERATIONS</div>
+        <div class="rc-kpi"><span class="rc-chip">배송지연 3건</span><span class="rc-chip">환불 5건</span></div>
+        <div class="rc-title">이번 주 운영 병목 핵심: 공급사 B 배송 지연 급증</div>
+      </div>
+      <div class="rc-body">
+        <p class="rc-quote">"지연 원인의 70%가 한 거래처에서 발생했습니다. 계약 재검토를 권장합니다."</p>
+      </div>
+      <div class="rc-footer"><span>5월 2주차</span><span class="rc-pro">PRO 전체 열람</span></div>
+    </div>
+
+    <div class="report-card reveal reveal-delay-3">
+      <div class="rc-header">
+        <div class="rc-type t">NEW BUYER GROWTH</div>
+        <div class="rc-kpi"><span class="rc-chip">신규 20명</span><span class="rc-chip">첫구매 8명</span></div>
+        <div class="rc-title">이번 주 20명의 새로운 인연이 생겼습니다 🌿</div>
+      </div>
+      <div class="rc-body">
+        <p class="rc-quote">"첫 구매 고객 8명을 단골로 만들 골든타임. LTV 3배 성장 가능성이 있어요."</p>
+      </div>
+      <div class="rc-footer"><span>5월 1주차</span><span class="rc-pro">PRO 전체 열람</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- INTEGRATION -->
+<section style="background: var(--cream);">
+  <div class="integration container">
+    <div class="int-left reveal">
+      <h2>카페24 연동,<br>3단계면<br><em>끝납니다.</em></h2>
+      <p>별도 설치 없이 카페24 계정만 있으면 됩니다.<br>OAuth 인증 후 즉시 실데이터로 대시보드가 채워집니다.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h3>쇼핑몰 ID 입력</h3>
+            <p>업텐도 설정 화면에서 카페24 쇼핑몰 ID를 입력합니다.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h3>카페24 OAuth 인증</h3>
+            <p>카페24 공식 로그인 화면에서 권한을 허가합니다. 비밀번호는 업텐도에 전달되지 않습니다.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h3>실데이터 대시보드 시작</h3>
+            <p>인증 완료 즉시 실주문·재고·고객 데이터가 대시보드에 표시됩니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-1">
+      <div style="margin-bottom:1.2rem; font-size:.85rem; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.1em;">연동 데이터 범위</div>
+      <div class="scope-list">
+        <div class="scope-item">
+          <div>
+            <div class="scope-name">주문 데이터</div>
+            <div class="scope-desc">최근 30일 주문 내역 (상태·결제·배송)</div>
+          </div>
+          <span class="scope-badge">read_order</span>
+        </div>
+        <div class="scope-item">
+          <div>
+            <div class="scope-name">상품 &amp; 재고</div>
+            <div class="scope-desc">상품 정보 및 잔여 재고 수량</div>
+          </div>
+          <span class="scope-badge">read_product</span>
+        </div>
+        <div class="scope-item">
+          <div>
+            <div class="scope-name">고객 정보</div>
+            <div class="scope-desc">VIP 여부, 신규 가입 현황</div>
+          </div>
+          <span class="scope-badge">read_customer</span>
+        </div>
+        <div class="scope-item">
+          <div>
+            <div class="scope-name">공급사 성과</div>
+            <div class="scope-desc">거래처별 납품·지연·불량 데이터</div>
+          </div>
+          <span class="scope-badge">read_supply</span>
+        </div>
+        <div class="scope-item">
+          <div>
+            <div class="scope-name">배송 상태</div>
+            <div class="scope-desc">배송 현황, 지연 건수 추적</div>
+          </div>
+          <span class="scope-badge">read_shipment</span>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem; padding:1.2rem; background:var(--green-lt); border-left:3px solid var(--green); border-radius:0 4px 4px 0;">
+        <div style="font-size:.8rem; font-weight:700; color:var(--green); margin-bottom:.4rem;">🔒 데이터 보안</div>
+        <div style="font-size:.82rem; color:var(--ink-soft); line-height:1.7;">
+          카페24 OAuth 표준 인증 방식을 사용합니다.<br>
+          비밀번호는 절대 수집하지 않으며, 모든 토큰은 Firebase 서버에 암호화 저장됩니다.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="cta">
+  <div class="cta-inner">
+    <h2 class="reveal">지금 바로<br><em>14일 무료</em>로<br>시작하세요.</h2>
+    <p class="reveal reveal-delay-1">
+      신용카드 없이, 설치 없이.<br>
+      카페24 계정 하나로 업텐도의 모든 PRO 기능을 14일간 무료로 경험하세요.
+    </p>
+    <div class="cta-actions reveal reveal-delay-2">
+      <a href="#" class="btn btn-cta">14일 무료 체험 시작 →</a>
+    </div>
+    <p class="cta-note reveal reveal-delay-3">14일 후 자동 전환 없음 · 언제든 취소 가능 · 카드 정보 불필요</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Uptendo.</div>
+  <div class="footer-right">© 2026 Uptendo. All rights reserved. · 카페24 파트너 앱</div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  revealEls.forEach(el => io.observe(el));
+</script>
+</body>
+</html>
