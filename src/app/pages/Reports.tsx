@@ -14,7 +14,7 @@ import { cn } from "../../utils/cn";
 import { useState } from "react";
 
 // ─── 타입 정의 ──────────────────────────────────────────────────────────────────
-type ReportType = "business" | "review" | "operations";
+type ReportType = "business" | "review" | "operations" | "newbuyer";
 
 interface DetailSection {
   type: "highlight" | "tmi" | "praise" | "warning";
@@ -67,6 +67,14 @@ const TYPE_META: Record<
     tagText: "text-amber-600",
     tagBorder: "border-amber-100",
   },
+  newbuyer: {
+    label: "신규 고객 성장",
+    badgeBg: "bg-teal-50",
+    badgeText: "text-teal-700",
+    tagBg: "bg-teal-50",
+    tagText: "text-teal-700",
+    tagBorder: "border-teal-100",
+  },
 };
 
 // ─── 통계 데이터 (기존 그대로) ─────────────────────────────────────────────────
@@ -93,6 +101,48 @@ const THIS_WEEK = {
 
 // ─── 이전 주간 리포팅 목록 (최대 3개) ──────────────────────────────────────────
 const PREV_REPORTS: PrevReport[] = [
+  {
+    id: 0,
+    period: "5월 4주차",
+    topic: "이번 주, 20명의 새로운 인연이 생겼습니다!",
+    type: "newbuyer",
+    keywords: ["#첫구매전환", "#VIP골든타임", "#재구매쿠폰"],
+    satisfaction: 4.9,
+    detail: {
+      subtitle: "신규 고객 성장 리포트",
+      greeting: "쉼팩토리 김사장님,\n이번 주 20명의 새 고객이 우리 몰을 처음 찾았어요! 🌿",
+      sections: [
+        {
+          type: "highlight",
+          icon: "🌿",
+          label: "이번 주 신규 인연",
+          heading: "20명의 첫 구매 고객 · 총 결제액 124만원",
+          body: "이번 주 첫 구매를 완료한 고객이 20명이에요. 평균 객단가는 6.2만원으로 전주 대비 8% 높아졌습니다. 특히 베스트 가디건·슬랙스 세트 구성이 인기였어요.",
+        },
+        {
+          type: "tmi",
+          icon: "💡",
+          label: "왜 이분들이 중요한가요?",
+          heading: "재구매 성공 시 LTV 3배 이상",
+          body: "첫 구매 고객이 두 번째 구매까지 이어질 확률은 보통 20% 미만이지만, 재구매에 성공하면 평생 가치(LTV)가 3배 이상 높아집니다. 지금이 VIP 단골로 만들 골든타임이에요!",
+        },
+        {
+          type: "praise",
+          icon: "👏",
+          label: "참 잘했어요!",
+          heading: "전환율 40% · 업계 평균의 2배",
+          body: "신규 가입 20명 중 8명이 당일 첫 결제까지 완료했어요. 상세페이지 설득력과 빠른 응답이 주효했습니다.",
+        },
+        {
+          type: "warning",
+          icon: "🎁",
+          label: "지금 해보세요!",
+          heading: "장바구니 미결제 7명 — 15% 쿠폰 발송 타이밍",
+          body: "장바구니에 상품을 담고 결제를 완료하지 않은 신규 고객 7명에게 '다시 만나서 반가워요' 15% 쿠폰을 발송해 보세요. 재구매 전환율을 크게 높일 수 있어요.",
+        },
+      ],
+    },
+  },
   {
     id: 1,
     period: "5월 3주차",
@@ -343,13 +393,133 @@ function openFullReport() {
   }
 }
 
+function buildNewBuyerReportHtml(): string {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>업텐도 첫 구매 고객 재구매 유도 리포트</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f8fafc;font-family:'Pretendard',-apple-system,sans-serif;">
+  <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%"
+    style="max-width:600px;margin:20px auto;background-color:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.05);">
+
+    <tr>
+      <td style="padding:50px 40px;background:linear-gradient(135deg,#00b09b 0%,#96c93d 100%);text-align:center;">
+        <p style="color:rgba(255,255,255,0.9);margin:0;font-size:14px;font-weight:700;letter-spacing:2px;">NEW RELATIONSHIP REPORT</p>
+        <h1 style="color:#ffffff;margin:15px 0 0 0;font-size:28px;font-weight:800;line-height:1.3;">이번 주, 20명의<br>새로운 인연이 생겼습니다! 🌿</h1>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding:40px 30px;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="text-align:center;border-right:1px solid #edf2f7;">
+              <p style="margin:0;font-size:14px;color:#718096;">첫 구매 완료</p>
+              <p style="margin:5px 0 0 0;font-size:24px;font-weight:800;color:#2d3748;">20명</p>
+            </td>
+            <td style="text-align:center;border-right:1px solid #edf2f7;">
+              <p style="margin:0;font-size:14px;color:#718096;">총 결제액</p>
+              <p style="margin:5px 0 0 0;font-size:24px;font-weight:800;color:#2d3748;">124만원</p>
+            </td>
+            <td style="text-align:center;">
+              <p style="margin:0;font-size:14px;color:#718096;">평균 객단가</p>
+              <p style="margin:5px 0 0 0;font-size:24px;font-weight:800;color:#2d3748;">6.2만원</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding:0 30px 20px 30px;">
+        <div style="background-color:#f0fff4;border-radius:20px;padding:25px;">
+          <h3 style="margin:0;font-size:17px;color:#22543d;">💡 왜 이분들이 중요한가요?</h3>
+          <p style="margin:15px 0 0 0;font-size:15px;color:#276749;line-height:1.7;">
+            첫 구매 고객이 <b>두 번째 구매</b>까지 이어질 확률은 보통 20% 미만이지만,
+            재구매에 성공하면 우리 쇼핑몰의 <b>평생 가치(LTV)가 3배 이상</b> 높아집니다.
+            지금이 VIP 단골로 만들 수 있는 골든타임이에요!
+          </p>
+        </div>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding:20px 30px;">
+        <p style="margin:0 0 15px 0;font-size:14px;font-weight:700;color:#4a5568;">이런 고객들이 우리 몰을 처음 찾았어요</p>
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:0 10px;">
+          <tr>
+            <td style="background-color:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:15px;">
+              <table width="100%">
+                <tr>
+                  <td style="font-size:15px;font-weight:600;color:#2d3748;">김*현님 (30대/여성)</td>
+                  <td align="right" style="font-size:13px;color:#38a169;font-weight:700;">베스트 가디건 구매</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:15px;">
+              <table width="100%">
+                <tr>
+                  <td style="font-size:15px;font-weight:600;color:#2d3748;">이*민님 (20대/남성)</td>
+                  <td align="right" style="font-size:13px;color:#38a169;font-weight:700;">슬랙스 외 2건 구매</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-top:10px;">
+              <span style="font-size:13px;color:#718096;">외 18명의 소중한 인연</span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding:30px 30px 50px 30px;text-align:center;">
+        <div style="background-color:#faf5ff;border:2px dashed #d6bcfa;border-radius:20px;padding:30px;">
+          <p style="margin:0;font-size:16px;font-weight:700;color:#553c9a;">두 번째 만남을 위한 시크릿 선물 🎁</p>
+          <p style="margin:10px 0 25px 0;font-size:14px;color:#6b46c1;">첫 구매 확정 고객 20분께만 드리는<br>'다시 만나서 반가워요' 15% 쿠폰을 발송할까요?</p>
+          <a href="#" style="display:inline-block;background-color:#6b46c1;color:#ffffff;padding:16px 35px;border-radius:50px;text-decoration:none;font-weight:700;font-size:16px;box-shadow:0 10px 20px rgba(107,70,193,0.2);">20명에게 감사 쿠폰 발송하기</a>
+        </div>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding:30px;background-color:#f7fafc;text-align:center;">
+        <p style="margin:0;font-size:12px;color:#a0aec0;line-height:1.8;">
+          <b>Uptendo PRO</b> | 신규 고객 성장 리포트<br>
+          데이터 기준: 2026.05.04 ~ 2026.05.10<br>
+          본 리포트는 쉼팩토리 사장님의 비즈니스 성장을 위해 제작되었습니다.
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+function openNewBuyerReport() {
+  const win = window.open("", "_blank", "width=640,height=800,scrollbars=yes");
+  if (win) {
+    win.document.write(buildNewBuyerReportHtml());
+    win.document.close();
+  }
+}
+
 // ─── 이전 리포트 상세 시트 ──────────────────────────────────────────────────────
 function ReportDetailSheet({
   report,
   onClose,
+  isPro,
 }: {
   report: PrevReport;
   onClose: () => void;
+  isPro: boolean;
 }) {
   const meta = TYPE_META[report.type];
 
@@ -490,6 +660,23 @@ function ReportDetailSheet({
             <span className="text-sm font-bold text-gray-800">{report.satisfaction}</span>
             <span className="text-xs text-gray-400">/ 5.0 · 주차 평균 만족도</span>
           </div>
+
+          {/* 신규 고객 리포트 전체 보기 버튼 */}
+          {report.type === "newbuyer" && isPro && (
+            <button
+              onClick={openNewBuyerReport}
+              className="w-full flex items-center justify-center gap-2 py-3 bg-teal-600 text-white rounded-xl text-sm font-semibold hover:bg-teal-700 transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" />
+              전체 리포트 새 창으로 보기
+            </button>
+          )}
+          {report.type === "newbuyer" && !isPro && (
+            <div className="flex items-center gap-2 py-3 px-4 bg-teal-50 border border-teal-100 rounded-xl">
+              <Lock className="w-4 h-4 text-teal-500 shrink-0" />
+              <p className="text-xs text-teal-700 font-semibold">PRO로 업그레이드하면 전체 리포트를 열람할 수 있어요</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -698,6 +885,7 @@ export function Reports() {
         <ReportDetailSheet
           report={selectedReport}
           onClose={() => setSelectedReport(null)}
+          isPro={isPro}
         />
       )}
     </div>

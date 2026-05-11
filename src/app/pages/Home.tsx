@@ -121,7 +121,13 @@ const MOCK_DATA = {
     { id: 1, name: "스피드배송(지연)", reason: "평균 배송 5.2일 지연", severity: "high" },
     { id: 2, name: "퀄리티마켓(불량)", reason: "불량 반품률 12% 급증", severity: "high" },
     { id: 3, name: "가성비어패럴", reason: "오배송 5건 발생", severity: "medium" },
-  ]
+  ],
+  newBuyers: {
+    newSignups: 20,
+    firstPayment: 8,
+    cartAbandoned: 7,
+    firstBuyRevenue: 1240000,
+  },
 };
 
 export function Home() {
@@ -130,7 +136,7 @@ export function Home() {
   const navigate = useNavigate();
 
   const [sectionOrder, setSectionOrder] = useState([
-    "sales", "vip", "issues", "inventory", "suppliers",
+    "sales", "vip", "newbuyers", "issues", "inventory", "suppliers",
   ]);
 
   const sensors = useSensors(
@@ -362,6 +368,56 @@ export function Home() {
                 </li>
               ))}
             </ul>
+          </div>
+        </div>
+      ),
+    },
+    newbuyers: {
+      title: "신규 가입자 구매 전환",
+      content: (
+        <div className="bg-white rounded-2xl shadow-sm border border-teal-100 overflow-hidden">
+          <div className="px-4 pt-4 pb-3 bg-teal-50/40 border-b border-teal-100">
+            <div className="flex items-center space-x-2 mb-0.5">
+              <Sparkles className="w-4 h-4 text-teal-600" />
+              <span className="text-sm font-semibold text-teal-800">오늘 신규 인연</span>
+            </div>
+            <div className="flex items-baseline space-x-1 mt-1">
+              <span className="text-3xl font-extrabold text-teal-600">{MOCK_DATA.newBuyers.newSignups}</span>
+              <span className="text-base font-bold text-gray-600">명 신규 가입</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 divide-x divide-gray-100 border-b border-gray-100">
+            <div className="p-3 text-center">
+              <p className="text-[11px] text-gray-500 mb-1">첫 결제 완료</p>
+              <span className="text-lg font-extrabold text-green-600">{MOCK_DATA.newBuyers.firstPayment}</span>
+              <span className="text-xs text-gray-400 ml-0.5">명</span>
+            </div>
+            <div className="p-3 text-center">
+              <p className="text-[11px] text-gray-500 mb-1">장바구니 미결제</p>
+              <span className="text-lg font-extrabold text-orange-500">{MOCK_DATA.newBuyers.cartAbandoned}</span>
+              <span className="text-xs text-gray-400 ml-0.5">명</span>
+            </div>
+            <div className="p-3 text-center">
+              <p className="text-[11px] text-gray-500 mb-1">첫 구매 매출</p>
+              <span className="text-base font-extrabold text-gray-900">
+                {(MOCK_DATA.newBuyers.firstBuyRevenue / 10000).toFixed(0)}
+              </span>
+              <span className="text-xs text-gray-400 ml-0.5">만원</span>
+            </div>
+          </div>
+          <div className="px-4 py-3 flex items-center justify-between">
+            <p className="text-xs text-gray-400">전환율</p>
+            <div className="flex items-center space-x-2">
+              <div className="w-28 h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-teal-400 rounded-full"
+                  style={{ width: `${Math.round((MOCK_DATA.newBuyers.firstPayment / MOCK_DATA.newBuyers.newSignups) * 100)}%` }}
+                />
+              </div>
+              <span className="text-xs font-bold text-teal-600">
+                {Math.round((MOCK_DATA.newBuyers.firstPayment / MOCK_DATA.newBuyers.newSignups) * 100)}%
+              </span>
+            </div>
           </div>
         </div>
       ),

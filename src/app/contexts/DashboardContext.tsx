@@ -9,8 +9,9 @@ export const REQUIRED_SECTIONS: { id: string; label: string }[] = [
 
 // ─── 선택 항목 (토글 가능) ────────────────────────────────────────────────────
 export const OPTIONAL_SECTIONS: { id: string; label: string; description: string }[] = [
-  { id: "vip",       label: "단골/VIP 고객 현황",           description: "재구매 3회 이상 단골 고객의 신규 주문 현황" },
-  { id: "inventory", label: "재고 방어 및 주력 상품 모니터링", description: "품절 임박 상품·베스트셀러 실시간 확인" },
+  { id: "vip",        label: "단골/VIP 고객 현황",             description: "재구매 3회 이상 단골 고객의 신규 주문 현황" },
+  { id: "inventory",  label: "재고 방어 및 주력 상품 모니터링",   description: "품절 임박 상품·베스트셀러 실시간 확인" },
+  { id: "newbuyers",  label: "신규 가입자 구매 전환",             description: "오늘 신규 가입 · 첫 결제 완료 · 장바구니 미결제 현황" },
 ];
 
 const LS_KEY = "dashboard_enabled_optionals";
