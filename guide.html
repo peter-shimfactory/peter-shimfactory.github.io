@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>업텐도 서비스 가이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream:     #F6F2EB;
+  --ink:       #1C1814;
+  --ink-soft:  #4A4540;
+  --green:     #2B5C40;
+  --green-mid: #3E7A58;
+  --green-lt:  #D6EAE0;
+  --gold:      #C9A84C;
+  --rule:      #D8D2C8;
+  --white:     #FDFAF5;
+  --indigo:    #4F46E5;
+  --blue:      #2563EB;
+  --teal:      #0F766E;
+  --amber:     #D97706;
+  --purple:    #7C3AED;
+  --red:       #DC2626;
+  --phone-w:   256px;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ─── LAYOUT ─── */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 clamp(1rem, 5vw, 3rem); }
+
+/* ─── TOPBAR ─── */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(246,242,235,.96);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .9rem clamp(1rem, 5vw, 3rem);
+}
+.topbar-logo { font-weight: 900; font-size: 1.1rem; color: var(--green); letter-spacing: -.02em; }
+.topbar-logo span { color: var(--ink); }
+.topbar-nav { display: flex; gap: .5rem; }
+.tnav {
+  font-size: .75rem; font-weight: 600; color: var(--ink-soft);
+  padding: .35rem .75rem; border-radius: 999px; text-decoration: none;
+  border: 1px solid transparent; transition: all .15s;
+}
+.tnav:hover { background: var(--white); border-color: var(--rule); color: var(--ink); }
+.tnav.active { background: var(--green); color: var(--white); }
+
+/* ─── HERO ─── */
+.guide-hero {
+  padding: clamp(3rem, 8vw, 6rem) 0 clamp(2rem, 5vw, 4rem);
+  text-align: center;
+}
+.guide-hero-eyebrow {
+  display: inline-flex; align-items: center; gap: .5rem;
+  font-size: .75rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 1.5rem;
+}
+.guide-hero-eyebrow::before, .guide-hero-eyebrow::after { content: '—'; opacity: .5; }
+.guide-hero h1 {
+  font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 900;
+  letter-spacing: -.03em; line-height: 1.1; margin-bottom: 1rem;
+}
+.guide-hero h1 em { font-style: normal; color: var(--green); }
+.guide-hero p { font-size: 1.05rem; color: var(--ink-soft); max-width: 520px; margin: 0 auto; line-height: 1.75; }
+
+/* ─── MENU NAV TILES ─── */
+.menu-tiles {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px;
+  background: var(--rule); border: 1px solid var(--rule);
+  border-radius: 12px; overflow: hidden;
+  max-width: 800px; margin: 3rem auto;
+}
+.menu-tile {
+  background: var(--white); padding: 1.4rem 1rem; text-align: center;
+  text-decoration: none; color: var(--ink); transition: background .15s;
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+}
+.menu-tile:hover { background: var(--green-lt); }
+.menu-tile-icon { font-size: 1.6rem; }
+.menu-tile-label { font-size: .78rem; font-weight: 700; }
+.menu-tile-sub { font-size: .68rem; color: var(--ink-soft); }
+
+/* ─── SECTION ANCHOR ─── */
+.guide-section { padding: clamp(4rem, 8vw, 7rem) 0; }
+.guide-section + .guide-section { border-top: 2px solid var(--rule); }
+
+.section-eyebrow {
+  display: flex; align-items: center; gap: .8rem; margin-bottom: 1.5rem;
+}
+.section-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.2rem; color: var(--green-mid); line-height: 1;
+  width: 32px; flex-shrink: 0;
+}
+.section-tag {
+  font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 2px; background: var(--green); color: var(--white);
+}
+.section-tag.blue   { background: var(--blue); }
+.section-tag.teal   { background: var(--teal); }
+.section-tag.amber  { background: var(--amber); }
+.section-tag.purple { background: var(--purple); }
+.section-tag.indigo { background: var(--indigo); }
+
+.section-title { font-size: clamp(1.6rem, 3.5vw, 2.6rem); font-weight: 900; letter-spacing: -.03em; line-height: 1.15; margin-bottom: .8rem; }
+.section-title em { font-style: normal; color: var(--green); }
+.section-lead { font-size: .95rem; color: var(--ink-soft); line-height: 1.75; max-width: 520px; }
+
+/* ─── FEATURE LAYOUT (phone + text) ─── */
+.feature-block {
+  display: grid; grid-template-columns: var(--phone-w) 1fr;
+  gap: clamp(2rem, 5vw, 4rem); align-items: start;
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+}
+.feature-block.reverse { grid-template-columns: 1fr var(--phone-w); }
+.feature-block.reverse .phone-col { order: 2; }
+.feature-block.reverse .desc-col  { order: 1; }
+
+/* ─── PHONE SHELL ─── */
+.phone-shell {
+  width: var(--phone-w);
+  background: var(--ink);
+  border-radius: 40px;
+  padding: 14px 12px;
+  box-shadow: 0 24px 60px rgba(28,24,20,.3), 0 0 0 1px rgba(28,24,20,.18);
+  flex-shrink: 0;
+}
+.phone-notch {
+  width: 72px; height: 8px; background: #111; border-radius: 10px;
+  margin: 0 auto 10px;
+}
+.phone-screen {
+  background: #F4F1EC; border-radius: 28px;
+  overflow: hidden; min-height: 440px;
+  display: flex; flex-direction: column;
+  font-size: 9px;
+}
+/* screen header */
+.sc-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 10px 6px; border-bottom: .5px solid #DDD;
+  background: #FDFAF5;
+}
+.sc-bar-title { font-size: 11px; font-weight: 900; color: #1C1814; }
+.sc-bar-right { font-size: 7.5px; color: #888; display: flex; align-items: center; gap: 3px; }
+.sc-bar-dot { width: 5px; height: 5px; border-radius: 50%; background: #4CAF50; }
+/* tab bar */
+.sc-tabs {
+  display: flex; border-bottom: .5px solid #DDD;
+  background: #FDFAF5;
+}
+.sc-tab { flex: 1; padding: 6px 0; text-align: center; font-size: 7.5px; font-weight: 600; color: #999; border-bottom: 2px solid transparent; }
+.sc-tab.active { color: #2B5C40; border-bottom-color: #2B5C40; }
+/* bottom nav */
+.sc-nav {
+  display: flex; justify-content: space-around; align-items: center;
+  padding: 7px 0 6px; border-top: .5px solid #DDD;
+  background: #FDFAF5; margin-top: auto;
+}
+.sc-nav-item { text-align: center; }
+.sc-nav-icon { font-size: 13px; }
+.sc-nav-label { font-size: 7px; color: #999; display: block; margin-top: 1px; }
+.sc-nav-item.on .sc-nav-label { color: #2B5C40; font-weight: 700; }
+/* content area */
+.sc-body { flex: 1; padding: 8px; overflow: hidden; }
+
+/* generic card */
+.sc-card {
+  background: #FDFAF5; border-radius: 10px;
+  padding: 9px 8px; margin-bottom: 6px;
+  border: .5px solid #DDD;
+}
+.sc-card-head { font-size: 7.5px; font-weight: 700; color: #888; margin-bottom: 5px; }
+.sc-row { display: flex; gap: 4px; }
+.sc-metric {
+  flex: 1; background: #F6F2EB; border-radius: 6px; padding: 5px;
+  text-align: center;
+}
+.sc-metric-val { font-size: 12px; font-weight: 800; color: #2B5C40; line-height: 1; }
+.sc-metric-sub { font-size: 6.5px; color: #888; margin-top: 1.5px; }
+.sc-metric-val.blue  { color: #2563EB; }
+.sc-metric-val.red   { color: #DC2626; }
+.sc-metric-val.amber { color: #D97706; }
+
+/* issue row */
+.sc-issue-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 0; border-bottom: .5px solid #eee; font-size: 8px;
+}
+.sc-issue-row:last-child { border-bottom: none; }
+.sc-issue-label { color: #888; }
+.sc-issue-val { font-weight: 700; color: #1C1814; }
+.sc-issue-val.red { color: #DC2626; }
+.sc-blur { filter: blur(3px); user-select: none; }
+.sc-lock { color: #CCC; font-size: 9px; }
+
+/* bar */
+.sc-bar-track { height: 4px; background: #DDD; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.sc-bar-fill-g { height: 100%; background: #2B5C40; border-radius: 3px; }
+
+/* list item */
+.sc-list-item {
+  display: flex; align-items: flex-start; gap: 6px;
+  padding: 5px 0; border-bottom: .5px solid #eee;
+}
+.sc-list-item:last-child { border-bottom: none; }
+.sc-list-dot { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: 8px; flex-shrink: 0; }
+.sc-list-body { flex: 1; }
+.sc-list-title { font-size: 8px; font-weight: 700; color: #1C1814; line-height: 1.3; }
+.sc-list-sub   { font-size: 7px; color: #888; margin-top: 1px; }
+.sc-list-badge { display: inline-block; background: #FEF0C7; color: #D97706; font-size: 6.5px; font-weight: 700; padding: 1px 5px; border-radius: 3px; }
+.sc-list-badge.red  { background: #FEE2E2; color: #DC2626; }
+.sc-list-badge.grn  { background: #D1FAE5; color: #059669; }
+.sc-list-badge.blue { background: #DBEAFE; color: #2563EB; }
+
+/* supplier rank row */
+.sc-rank-row {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 0; border-bottom: .5px solid #eee; font-size: 7.5px;
+}
+.sc-rank-row:last-child { border-bottom: none; }
+.sc-rank-num { width: 12px; font-size: 8px; font-weight: 800; color: #C9A84C; flex-shrink: 0; text-align: center; }
+.sc-rank-name { flex: 1; font-weight: 600; color: #1C1814; }
+.sc-rank-val  { color: #888; }
+
+/* progress bar (newbuyers) */
+.sc-progress-wrap { margin-top: 5px; }
+.sc-progress-labels { display: flex; justify-content: space-between; font-size: 7px; color: #888; margin-bottom: 2px; }
+
+/* order item */
+.sc-order-item {
+  background: #FDFAF5; border-radius: 8px; border: .5px solid #DDD;
+  padding: 7px 7px; margin-bottom: 5px;
+}
+.sc-order-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3px; }
+.sc-order-id { font-size: 7px; color: #888; }
+.sc-order-status { font-size: 7px; font-weight: 700; padding: 1px 5px; border-radius: 3px; }
+.sc-order-name { font-size: 8.5px; font-weight: 700; color: #1C1814; }
+.sc-order-name .crown { font-size: 8px; color: #D97706; }
+.sc-order-product { font-size: 7.5px; color: #888; margin-top: 1px; }
+.sc-order-bottom { display: flex; justify-content: space-between; margin-top: 3px; }
+.sc-order-price { font-size: 8px; font-weight: 700; color: #2B5C40; }
+.sc-order-time  { font-size: 7px; color: #BBB; }
+
+/* report card */
+.sc-report-card {
+  background: #FDFAF5; border-radius: 8px; border: .5px solid #DDD;
+  margin-bottom: 6px; overflow: hidden;
+}
+.sc-report-header { padding: 7px 8px; }
+.sc-report-type { font-size: 7px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 3px; }
+.sc-report-chips { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 3px; }
+.sc-report-chip { background: #F6F2EB; border: .5px solid #DDD; border-radius: 999px; padding: 1.5px 5px; font-size: 6.5px; color: #888; }
+.sc-report-title { font-size: 8px; font-weight: 800; color: #1C1814; line-height: 1.3; }
+.sc-report-footer { background: #F6F2EB; padding: 4px 8px; display: flex; justify-content: space-between; align-items: center; font-size: 7px; color: #888; }
+.sc-report-pro { color: #2B5C40; font-weight: 700; }
+
+/* settings item */
+.sc-setting-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; border-bottom: .5px solid #eee;
+}
+.sc-setting-row:last-child { border-bottom: none; }
+.sc-setting-label { font-size: 8px; font-weight: 600; color: #1C1814; }
+.sc-setting-sub   { font-size: 7px; color: #888; }
+.sc-toggle {
+  width: 24px; height: 14px; border-radius: 7px; background: #2B5C40;
+  position: relative; flex-shrink: 0;
+}
+.sc-toggle::after {
+  content: ''; position: absolute; right: 2px; top: 2px;
+  width: 10px; height: 10px; border-radius: 50%; background: #fff;
+}
+.sc-toggle.off { background: #DDD; }
+.sc-toggle.off::after { right: auto; left: 2px; }
+
+/* cs card */
+.sc-cs-card {
+  background: #FDFAF5; border-radius: 8px; border: .5px solid #DDD;
+  padding: 7px; margin-bottom: 5px;
+}
+.sc-cs-type-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+.sc-cs-badge { font-size: 6.5px; font-weight: 700; padding: 1px 5px; border-radius: 2px; }
+.sc-cs-time  { font-size: 6.5px; color: #BBB; }
+.sc-cs-title { font-size: 8px; font-weight: 700; color: #1C1814; line-height: 1.3; margin-bottom: 2px; }
+.sc-cs-body  { font-size: 7px; color: #888; line-height: 1.4; }
+.sc-cs-actions { display: flex; gap: 3px; margin-top: 5px; }
+.sc-cs-btn {
+  flex: 1; background: #F6F2EB; border: .5px solid #DDD; border-radius: 4px;
+  padding: 3px 0; text-align: center; font-size: 7px; font-weight: 600; color: #888;
+}
+.sc-cs-btn.primary { background: #2B5C40; color: #fff; border-color: #2B5C40; }
+
+/* ─── DESCRIPTION COLUMN ─── */
+.desc-col { display: flex; flex-direction: column; gap: 2rem; }
+
+.desc-heading { font-size: 1.25rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.3; margin-bottom: .5rem; }
+.desc-body { font-size: .88rem; color: var(--ink-soft); line-height: 1.8; }
+
+.tip-list { display: flex; flex-direction: column; gap: .75rem; }
+.tip-item {
+  display: flex; gap: .8rem; align-items: flex-start;
+  background: var(--white); border: 1px solid var(--rule);
+  border-radius: 8px; padding: .9rem 1rem;
+}
+.tip-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--green); color: var(--white);
+  display: grid; place-items: center;
+  font-size: .7rem; font-weight: 800; flex-shrink: 0;
+}
+.tip-body h4 { font-size: .85rem; font-weight: 800; margin-bottom: .2rem; }
+.tip-body p  { font-size: .8rem; color: var(--ink-soft); line-height: 1.65; }
+
+.callout {
+  border-left: 3px solid var(--green);
+  background: var(--green-lt); padding: .9rem 1rem;
+  border-radius: 0 6px 6px 0;
+  font-size: .82rem; color: var(--ink-soft); line-height: 1.7;
+}
+.callout strong { color: var(--green); }
+.callout.warn { border-color: var(--amber); background: #FEF9ED; }
+.callout.warn strong { color: var(--amber); }
+.callout.indigo { border-color: var(--indigo); background: #EEF2FF; }
+.callout.indigo strong { color: var(--indigo); }
+
+.pro-lock {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-size: .72rem; font-weight: 700; color: var(--gold);
+}
+.pro-lock::before { content: '⚡'; }
+
+.feature-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.ftag {
+  font-size: .72rem; font-weight: 600; padding: 3px 10px;
+  border-radius: 999px; border: 1px solid var(--rule); color: var(--ink-soft);
+  background: var(--white);
+}
+.ftag.green { background: var(--green-lt); border-color: var(--green-lt); color: var(--green); }
+
+/* sub-feature split */
+.sub-features { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+.sub-feature {
+  background: var(--white); border: 1px solid var(--rule);
+  border-radius: 8px; padding: .9rem 1rem;
+}
+.sf-icon { font-size: 1.2rem; margin-bottom: .4rem; }
+.sf-title { font-size: .82rem; font-weight: 800; margin-bottom: .25rem; }
+.sf-body  { font-size: .76rem; color: var(--ink-soft); line-height: 1.6; }
+
+/* info table */
+.info-table {
+  width: 100%; border-collapse: collapse; font-size: .82rem;
+  border: 1px solid var(--rule); border-radius: 6px; overflow: hidden;
+}
+.info-table th {
+  background: var(--cream); padding: .65rem 1rem; text-align: left;
+  font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  border-bottom: 1px solid var(--rule); color: var(--ink-soft);
+}
+.info-table td { padding: .65rem 1rem; border-bottom: 1px solid #EEE; vertical-align: top; }
+.info-table tr:last-child td { border-bottom: none; }
+.check { color: #22C55E; font-weight: 700; }
+.cross { color: #D1D5DB; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 760px) {
+  :root { --phone-w: 200px; }
+  .feature-block, .feature-block.reverse {
+    grid-template-columns: 1fr; gap: 2rem;
+  }
+  .feature-block.reverse .phone-col,
+  .feature-block.reverse .desc-col { order: unset; }
+  .phone-col { display: flex; justify-content: center; }
+  .phone-shell { width: 200px; }
+  .menu-tiles { grid-template-columns: repeat(3, 1fr); }
+  .sub-features { grid-template-columns: 1fr; }
+  .topbar-nav { display: none; }
+}
+
+/* fade-in */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s cubic-bezier(.16,1,.3,1), transform .6s cubic-bezier(.16,1,.3,1); }
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-d1 { transition-delay: .06s; }
+.reveal-d2 { transition-delay: .12s; }
+.reveal-d3 { transition-delay: .18s; }
+</style>
+</head>
+<body>
+
+<!-- TOP NAVIGATION -->
+<header class="topbar">
+  <div class="topbar-logo">업텐도<span> 가이드</span></div>
+  <nav class="topbar-nav">
+    <a href="#home"     class="tnav">🏠 홈</a>
+    <a href="#board"    class="tnav">📋 보드</a>
+    <a href="#orders"   class="tnav">📦 주문</a>
+    <a href="#reports"  class="tnav">📊 리포트</a>
+    <a href="#settings" class="tnav">⚙️ 설정</a>
+  </nav>
+</header>
+
+<!-- GUIDE HERO -->
+<section class="guide-hero container">
+  <div class="guide-hero-eyebrow reveal">서비스 이용 가이드</div>
+  <h1 class="reveal reveal-d1">업텐도<br><em>모든 기능</em> 설명서</h1>
+  <p class="reveal reveal-d2">카페24 쇼핑몰 대시보드 앱 업텐도의 5가지 메뉴와 핵심 기능을 상세히 안내합니다.</p>
+
+  <div class="menu-tiles reveal reveal-d3">
+    <a href="#home"     class="menu-tile"><div class="menu-tile-icon">🏠</div><div class="menu-tile-label">홈</div><div class="menu-tile-sub">대시보드</div></a>
+    <a href="#board"    class="menu-tile"><div class="menu-tile-icon">📋</div><div class="menu-tile-label">보드</div><div class="menu-tile-sub">CS · 리뷰</div></a>
+    <a href="#orders"   class="menu-tile"><div class="menu-tile-icon">📦</div><div class="menu-tile-label">주문</div><div class="menu-tile-sub">주문 관리</div></a>
+    <a href="#reports"  class="menu-tile"><div class="menu-tile-icon">📊</div><div class="menu-tile-label">리포트</div><div class="menu-tile-sub">주간 분석</div></a>
+    <a href="#settings" class="menu-tile"><div class="menu-tile-icon">⚙️</div><div class="menu-tile-label">설정</div><div class="menu-tile-sub">연동 · 알림</div></a>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- 01. 홈 (대시보드)                   -->
+<!-- ═══════════════════════════════════ -->
+<section class="guide-section" id="home">
+  <div class="container">
+
+    <div class="section-eyebrow reveal">
+      <span class="section-num">01</span>
+      <span class="section-tag">홈 · 대시보드</span>
+    </div>
+    <h2 class="section-title reveal reveal-d1">쇼핑몰 현황을<br><em>한 화면</em>으로</h2>
+    <p class="section-lead reveal reveal-d2">오늘의 매출·주문·고객·공급사 현황이 한 화면에 집약됩니다. 섹션은 드래그로 원하는 순서로 재배열할 수 있습니다.</p>
+
+    <!-- 블록 1: 매출 섹션 -->
+    <div class="feature-block reveal">
+      <div class="phone-col">
+        <div class="phone-shell">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="sc-bar">
+              <div class="sc-bar-title">업텐도</div>
+              <div class="sc-bar-right"><div class="sc-bar-dot"></div>10분 전 동기화</div>
+            </div>
+            <div class="sc-body">
+              <!-- 외형 매출 카드 -->
+              <div class="sc-card">
+                <div class="sc-card-head">📈 외형 매출과 실질 마진</div>
+                <div style="background:#EFF6FF;border-radius:8px;padding:8px;margin-bottom:6px;">
+                  <div style="font-size:7.5px;color:#888;margin-bottom:2px;">오늘 예상 마진 (수익)</div>
+                  <div style="display:flex;align-items:baseline;gap:3px;">
+                    <span style="font-size:20px;font-weight:900;color:#2563EB;line-height:1;">4,250,000</span>
+                    <span style="font-size:10px;font-weight:700;color:#555;">원</span>
+                  </div>
+                </div>
+                <div class="sc-row">
+                  <div class="sc-metric">
+                    <div class="sc-metric-val blue" style="font-size:10px;">15,420,000원</div>
+                    <div class="sc-metric-sub">총 결제 매출</div>
+                  </div>
+                  <div class="sc-metric">
+                    <div class="sc-metric-val" style="font-size:12px;">214건</div>
+                    <div class="sc-metric-sub">신규 주문</div>
+                  </div>
+                </div>
+              </div>
+              <!-- 신규 고객 -->
+              <div class="sc-card" style="background:#D6EAE0;border-color:#D6EAE0;">
+                <div class="sc-card-head">🌱 신규 가입자 구매 전환</div>
+                <div class="sc-row" style="margin-bottom:5px;">
+                  <div class="sc-metric" style="background:#fff;">
+                    <div class="sc-metric-val" style="font-size:16px;">20</div>
+                    <div class="sc-metric-sub">신규 가입</div>
+                  </div>
+                  <div class="sc-metric" style="background:#fff;">
+                    <div class="sc-metric-val">8</div>
+                    <div class="sc-metric-sub">첫 결제</div>
+                  </div>
+                  <div class="sc-metric" style="background:#fff;">
+                    <div class="sc-metric-val" style="color:#D97706;">7</div>
+                    <div class="sc-metric-sub">미결제</div>
+                  </div>
+                </div>
+                <div class="sc-progress-wrap">
+                  <div class="sc-progress-labels"><span>전환율</span><span style="font-weight:700;color:#2B5C40;">40%</span></div>
+                  <div class="sc-bar-track"><div class="sc-bar-fill-g" style="width:40%;"></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="sc-nav">
+              <div class="sc-nav-item on"><div class="sc-nav-icon">🏠</div><span class="sc-nav-label">홈</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📋</div><span class="sc-nav-label">보드</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📦</div><span class="sc-nav-label">주문</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📊</div><span class="sc-nav-label">리포트</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">⚙️</div><span class="sc-nav-label">설정</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="desc-col">
+        <div>
+          <h3 class="desc-heading">💰 외형 매출과 실질 마진 <span style="font-size:.75rem;background:#EFF6FF;color:#2563EB;padding:2px 8px;border-radius:3px;font-weight:700;">필수</span></h3>
+          <p class="desc-body">오늘의 전체 결제 매출 중에서 공급사별·카테고리별 원가율을 반영한 <strong>예상 실질 마진</strong>을 실시간으로 계산합니다. 단순 매출이 아닌 진짜 수익 현황을 확인할 수 있습니다.</p>
+          <div class="feature-tags" style="margin-top:.8rem;">
+            <span class="ftag green">10분 자동 동기화</span>
+            <span class="ftag">총 결제 매출</span>
+            <span class="ftag">신규 주문 수</span>
+          </div>
+        </div>
+        <div>
+          <h3 class="desc-heading">🌱 신규 가입자 구매 전환 <span style="font-size:.75rem;background:#F6F2EB;border:1px solid #D8D2C8;color:#888;padding:2px 8px;border-radius:3px;font-weight:700;">선택</span></h3>
+          <p class="desc-body">오늘 신규 가입한 고객 중 <strong>첫 결제까지 완료한 수</strong>와 <strong>장바구니에만 담은 미결제 고객 수</strong>를 보여줍니다. 전환율 프로그레스바로 오늘의 첫 구매 흐름을 직관적으로 파악할 수 있습니다.</p>
+        </div>
+        <div class="callout">
+          <strong>🌿 첫 구매 골든타임</strong><br>
+          신규 가입 후 24시간 내가 첫 구매 전환율이 가장 높습니다. 미결제 고객에게 쿠폰을 발송해 보세요.
+        </div>
+      </div>
+    </div>
+
+    <!-- 블록 2: 이슈 & 공급사 -->
+    <div class="feature-block reverse reveal" style="margin-top:4rem;">
+      <div class="phone-col">
+        <div class="phone-shell">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="sc-bar">
+              <div class="sc-bar-title">업텐도</div>
+              <div class="sc-bar-right"><div class="sc-bar-dot"></div>10분 전</div>
+            </div>
+            <div class="sc-body">
+              <!-- 운영 이슈 -->
+              <div class="sc-card">
+                <div class="sc-card-head">⚠️ 운영 병목 및 리스크 식별</div>
+                <div class="sc-issue-row"><span class="sc-issue-label">미처리 주문</span><span class="sc-issue-val red">42건</span></div>
+                <div class="sc-issue-row"><span class="sc-issue-label">취소/환불 요청</span><span class="sc-issue-val red">18건</span></div>
+                <div class="sc-issue-row">
+                  <span class="sc-issue-label">합배송 지연 묶임</span>
+                  <span style="display:flex;align-items:center;gap:3px;">
+                    <span class="sc-issue-val sc-blur">7건</span>
+                    <span class="sc-lock">🔒</span>
+                  </span>
+                </div>
+              </div>
+              <!-- 공급사 -->
+              <div class="sc-card">
+                <div class="sc-card-head">🏭 공급사 성과 및 문제 추적</div>
+                <div style="margin-bottom:5px;">
+                  <div style="font-size:7px;font-weight:700;color:#DC2626;margin-bottom:3px;">🚨 워스트 공급사 TOP3</div>
+                  <div class="sc-issue-row"><span class="sc-issue-label">스피드배송(지연)</span><span class="sc-blur sc-issue-val" style="color:#DC2626;">지연 5.2일</span></div>
+                  <div class="sc-issue-row"><span class="sc-issue-label">퀄리티마켓(불량)</span><span class="sc-blur sc-issue-val" style="color:#D97706;">반품률 12%</span></div>
+                </div>
+                <div style="font-size:7.5px;font-weight:700;color:#888;margin-bottom:3px;">공급사 랭킹</div>
+                <div class="sc-rank-row"><span class="sc-rank-num">1</span><span class="sc-rank-name">동대문 도매상가 A</span><span class="sc-rank-val">1,540만</span></div>
+                <div class="sc-rank-row"><span class="sc-rank-num">2</span><span class="sc-rank-name">제일어패럴</span><span class="sc-rank-val">1,220만</span></div>
+                <div class="sc-rank-row"><span class="sc-rank-num">3</span><span class="sc-rank-name">성수팩토리</span><span class="sc-rank-val">945만</span></div>
+              </div>
+            </div>
+            <div class="sc-nav">
+              <div class="sc-nav-item on"><div class="sc-nav-icon">🏠</div><span class="sc-nav-label">홈</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📋</div><span class="sc-nav-label">보드</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📦</div><span class="sc-nav-label">주문</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📊</div><span class="sc-nav-label">리포트</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">⚙️</div><span class="sc-nav-label">설정</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="desc-col">
+        <div>
+          <h3 class="desc-heading">⚠️ 운영 병목 및 리스크 식별 <span style="font-size:.75rem;background:#EFF6FF;color:#2563EB;padding:2px 8px;border-radius:3px;font-weight:700;">필수</span></h3>
+          <p class="desc-body">미처리 주문·취소/환불 요청 건수를 즉시 확인합니다. <strong>합배송 지연 묶임</strong> 건수는 PRO 플랜에서 확인 가능합니다.</p>
+          <div class="callout warn" style="margin-top:.8rem;">
+            <strong>⚡ PRO 전용</strong> — 합배송 지연 묶임 수치 열람
+          </div>
+        </div>
+        <div>
+          <h3 class="desc-heading">🏭 공급사 성과 및 문제 추적 <span style="font-size:.75rem;background:#EFF6FF;color:#2563EB;padding:2px 8px;border-radius:3px;font-weight:700;">필수</span></h3>
+          <p class="desc-body">배송 지연·불량 발생률 기준으로 <strong>워스트 공급사 TOP3</strong>를 자동 분석합니다. 매출 기준 공급사 전체 랭킹도 함께 확인할 수 있습니다.</p>
+          <div class="callout warn" style="margin-top:.8rem;">
+            <strong>⚡ PRO 전용</strong> — 워스트 공급사 문제 사유 상세 열람
+          </div>
+        </div>
+        <div>
+          <h3 class="desc-heading">드래그로 섹션 순서 변경</h3>
+          <p class="desc-body">각 섹션 우측의 <strong>🟰 아이콘</strong>을 길게 눌러 드래그하면 원하는 순서로 대시보드를 재배열할 수 있습니다. 설정 메뉴에서 선택 섹션을 켜거나 끌 수 있습니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 블록 3: VIP & 재고 -->
+    <div class="feature-block reveal" style="margin-top:4rem;">
+      <div class="phone-col">
+        <div class="phone-shell">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="sc-bar">
+              <div class="sc-bar-title">업텐도</div>
+              <div class="sc-bar-right"><div class="sc-bar-dot"></div>10분 전</div>
+            </div>
+            <div class="sc-body">
+              <!-- VIP -->
+              <div class="sc-card">
+                <div class="sc-card-head">👑 단골/VIP 고객 현황</div>
+                <div style="text-align:center;padding:8px 0;">
+                  <div style="font-size:7px;color:#888;margin-bottom:3px;">오늘 VIP 신규 주문</div>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:4px;">
+                    <span style="font-size:22px;font-weight:900;color:#D97706;filter:blur(4px);user-select:none;">8</span>
+                    <span style="font-size:9px;font-weight:700;color:#888;">건</span>
+                    <span style="font-size:10px;color:#CCC;">🔒</span>
+                  </div>
+                  <div style="font-size:7px;color:#D97706;margin-top:3px;font-weight:600;">PRO로 업그레이드 시 열람 가능</div>
+                </div>
+              </div>
+              <!-- 재고 -->
+              <div class="sc-card">
+                <div class="sc-card-head">📦 재고 방어 및 주력 상품</div>
+                <div style="font-size:7px;color:#DC2626;font-weight:700;margin-bottom:4px;">🚨 품절 임박 상품</div>
+                <div class="sc-issue-row">
+                  <span class="sc-issue-label">썸머 쿨링 슬랙스 (블랙/M)</span>
+                  <span style="display:flex;align-items:center;gap:2px;"><span class="sc-blur sc-issue-val" style="color:#DC2626;">3개</span><span class="sc-lock">🔒</span></span>
+                </div>
+                <div class="sc-issue-row">
+                  <span class="sc-issue-label">린넨 오버핏 셔츠 (화이트)</span>
+                  <span style="display:flex;align-items:center;gap:2px;"><span class="sc-blur sc-issue-val" style="color:#D97706;">5개</span><span class="sc-lock">🔒</span></span>
+                </div>
+                <div class="sc-issue-row">
+                  <span class="sc-issue-label">베이직 무지 반팔티 (네이비)</span>
+                  <span style="display:flex;align-items:center;gap:2px;"><span class="sc-blur sc-issue-val" style="color:#D97706;">8개</span><span class="sc-lock">🔒</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="sc-nav">
+              <div class="sc-nav-item on"><div class="sc-nav-icon">🏠</div><span class="sc-nav-label">홈</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📋</div><span class="sc-nav-label">보드</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📦</div><span class="sc-nav-label">주문</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📊</div><span class="sc-nav-label">리포트</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">⚙️</div><span class="sc-nav-label">설정</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="desc-col">
+        <div>
+          <h3 class="desc-heading">👑 단골/VIP 고객 현황 <span style="font-size:.75rem;background:#F6F2EB;border:1px solid #D8D2C8;color:#888;padding:2px 8px;border-radius:3px;font-weight:700;">선택</span></h3>
+          <p class="desc-body">누적 구매 <strong>3회 이상</strong> 단골 고객이 오늘 신규 주문을 넣은 건수를 실시간으로 보여줍니다. VIP 고객이 주문하면 즉시 알림을 받을 수 있습니다(설정에서 활성화).</p>
+          <span class="pro-lock">PRO — 주문 수 수치 열람</span>
+        </div>
+        <div>
+          <h3 class="desc-heading">📦 재고 방어 및 주력 상품 <span style="font-size:.75rem;background:#F6F2EB;border:1px solid #D8D2C8;color:#888;padding:2px 8px;border-radius:3px;font-weight:700;">선택</span></h3>
+          <p class="desc-body">재고 수량이 기준치 이하인 상품을 <strong>품절 임박 목록</strong>으로 보여줍니다. 기회 손실이 발생하기 전에 미리 발주할 수 있습니다.</p>
+          <span class="pro-lock">PRO — 재고 수량 수치 열람</span>
+        </div>
+        <div class="sub-features">
+          <div class="sub-feature">
+            <div class="sf-icon">🔒</div>
+            <div class="sf-title">FREE 제한</div>
+            <div class="sf-body">선택 섹션은 FREE 플랜에서 1개만 활성화할 수 있습니다.</div>
+          </div>
+          <div class="sub-feature">
+            <div class="sf-icon">⚡</div>
+            <div class="sf-title">PRO 무제한</div>
+            <div class="sf-body">PRO 플랜은 선택 섹션 3개 모두 활성화 + 수치 열람이 가능합니다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- 02. 보드 (CS · 리뷰)               -->
+<!-- ═══════════════════════════════════ -->
+<section class="guide-section" id="board">
+  <div class="container">
+
+    <div class="section-eyebrow reveal">
+      <span class="section-num">02</span>
+      <span class="section-tag blue">보드 · CS · 리뷰</span>
+    </div>
+    <h2 class="section-title reveal reveal-d1">고객 문의와 리뷰를<br><em>한 곳</em>에서 처리</h2>
+    <p class="section-lead reveal reveal-d2">긴급 CS와 고객 리뷰를 통합 관리합니다. 탭으로 필터링하고, 카드에서 바로 전화·문자·알림톡을 실행할 수 있습니다.</p>
+
+    <div class="feature-block reveal">
+      <div class="phone-col">
+        <div class="phone-shell">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="sc-bar">
+              <div class="sc-bar-title">보드</div>
+              <div class="sc-bar-right">미처리 <span style="color:#DC2626;font-weight:700;">3건</span></div>
+            </div>
+            <div class="sc-tabs">
+              <div class="sc-tab active">전체</div>
+              <div class="sc-tab">긴급 CS</div>
+              <div class="sc-tab">리뷰</div>
+            </div>
+            <div class="sc-body" style="padding-top:6px;">
+              <div class="sc-cs-card">
+                <div class="sc-cs-type-bar">
+                  <span class="sc-cs-badge" style="background:#FEE2E2;color:#DC2626;">🚨 배송/지연 문의</span>
+                  <span class="sc-cs-time">25분 전</span>
+                </div>
+                <div class="sc-cs-title">주문한 지 5일 됐는데 아직 출발도 안 했나요?</div>
+                <div class="sc-cs-body">이*은 · ORD-1002 · 코튼 반팔 원피스</div>
+                <div class="sc-cs-actions">
+                  <div class="sc-cs-btn">📦 주문 보기</div>
+                  <div class="sc-cs-btn">📞 전화</div>
+                  <div class="sc-cs-btn primary">💬 알림톡</div>
+                </div>
+              </div>
+              <div class="sc-cs-card">
+                <div class="sc-cs-type-bar">
+                  <span class="sc-cs-badge" style="background:#EDE9FE;color:#7C3AED;">🌟 포토리뷰</span>
+                  <span class="sc-cs-time">2시간 전</span>
+                </div>
+                <div class="sc-cs-title">옷이 너무 예뻐요! 재구매 예정 ⭐⭐⭐⭐⭐</div>
+                <div class="sc-cs-body">강*은 · ORD-1006 · 실크 블라우스</div>
+                <div class="sc-cs-actions">
+                  <div class="sc-cs-btn">📦 주문 보기</div>
+                  <div class="sc-cs-btn primary">💬 답글 달기</div>
+                </div>
+              </div>
+              <div class="sc-cs-card">
+                <div class="sc-cs-type-bar">
+                  <span class="sc-cs-badge" style="background:#FEE2E2;color:#DC2626;">🚨 교환/반품 요청</span>
+                  <span class="sc-cs-time">1시간 전</span>
+                </div>
+                <div class="sc-cs-title">사이즈가 달라요, 교환 가능한가요?</div>
+                <div class="sc-cs-body">박*수 · ORD-1011 · 스트라이프 셔츠</div>
+                <div class="sc-cs-actions">
+                  <div class="sc-cs-btn">📦 주문 보기</div>
+                  <div class="sc-cs-btn">📞 전화</div>
+                  <div class="sc-cs-btn primary">💬 알림톡</div>
+                </div>
+              </div>
+            </div>
+            <div class="sc-nav">
+              <div class="sc-nav-item"><div class="sc-nav-icon">🏠</div><span class="sc-nav-label">홈</span></div>
+              <div class="sc-nav-item on"><div class="sc-nav-icon">📋</div><span class="sc-nav-label">보드</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📦</div><span class="sc-nav-label">주문</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📊</div><span class="sc-nav-label">리포트</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">⚙️</div><span class="sc-nav-label">설정</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="desc-col">
+        <div>
+          <h3 class="desc-heading">탭 필터로 빠른 분류</h3>
+          <div class="tip-list">
+            <div class="tip-item">
+              <div class="tip-num" style="background:#DC2626;">!</div>
+              <div class="tip-body"><h4>긴급 CS 탭</h4><p>배송/지연 문의, 교환/반품, 불량/하자, 취소 요청만 모아서 봅니다. 처리 우선순위가 높은 건을 빠르게 처리하세요.</p></div>
+            </div>
+            <div class="tip-item">
+              <div class="tip-num" style="background:#7C3AED;">★</div>
+              <div class="tip-body"><h4>리뷰 탭</h4><p>포토리뷰·텍스트리뷰·상품문의를 모아서 봅니다. 미답변 리뷰에 빠르게 답글을 달아 재구매율을 높이세요.</p></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="desc-heading">카드에서 즉시 액션</h3>
+          <div class="sub-features">
+            <div class="sub-feature">
+              <div class="sf-icon">📦</div>
+              <div class="sf-title">주문 상세 보기</div>
+              <div class="sf-body">해당 CS와 연결된 주문 내역을 바로 확인합니다.</div>
+            </div>
+            <div class="sub-feature">
+              <div class="sf-icon">📞</div>
+              <div class="sf-title">전화 걸기</div>
+              <div class="sf-body">고객 번호로 바로 전화 연결합니다 (tel: 링크).</div>
+            </div>
+            <div class="sub-feature">
+              <div class="sf-icon">💬</div>
+              <div class="sf-title">알림톡 발송</div>
+              <div class="sf-body">템플릿 선택 후 즉시 알림톡을 발송합니다.</div>
+            </div>
+            <div class="sub-feature">
+              <div class="sf-icon">📝</div>
+              <div class="sf-title">문자 발송</div>
+              <div class="sf-body">SMS 문자를 직접 보낼 수 있습니다.</div>
+            </div>
+          </div>
+        </div>
+        <div class="callout">
+          <strong>답변 타이밍이 중요합니다</strong><br>
+          긴급 CS는 접수 후 2시간 이내, 리뷰 답글은 24시간 이내 처리를 권장합니다. 빠른 응답은 재구매율과 직결됩니다.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- 03. 주문 관리                        -->
+<!-- ═══════════════════════════════════ -->
+<section class="guide-section" id="orders">
+  <div class="container">
+
+    <div class="section-eyebrow reveal">
+      <span class="section-num">03</span>
+      <span class="section-tag teal">주문 관리</span>
+    </div>
+    <h2 class="section-title reveal reveal-d1">카페24 실주문을<br><em>모바일</em>로</h2>
+    <p class="section-lead reveal reveal-d2">카페24 연동 후 실제 주문 데이터를 불러옵니다. 탭별 필터·상세 확인·VIP 표시를 모바일에서 바로 처리할 수 있습니다.</p>
+
+    <div class="feature-block reverse reveal">
+      <div class="phone-col">
+        <div class="phone-shell">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="sc-bar">
+              <div class="sc-bar-title">주문</div>
+              <div class="sc-bar-right">카페24 연동됨</div>
+            </div>
+            <div class="sc-tabs">
+              <div class="sc-tab active">신규</div>
+              <div class="sc-tab">미처리</div>
+              <div class="sc-tab">취소/환불</div>
+              <div class="sc-tab">단골</div>
+            </div>
+            <div class="sc-body" style="padding-top:6px;">
+              <div class="sc-order-item">
+                <div class="sc-order-top">
+                  <div>
+                    <div class="sc-order-id">ORD-1001 · 18분 전</div>
+                    <div class="sc-order-name"><span class="crown">👑</span> 김*준 <span style="font-size:7px;background:#FEF3C7;color:#D97706;padding:1px 4px;border-radius:2px;font-weight:700;">VIP</span></div>
+                  </div>
+                  <span class="sc-order-status" style="background:#D1FAE5;color:#059669;">결제완료</span>
+                </div>
+                <div class="sc-order-product">여성용 베이직 티셔츠 ×2, 린넨 슬랙스 ×1</div>
+                <div class="sc-order-bottom">
+                  <span class="sc-order-price">128,000원</span>
+                  <span class="sc-order-time">서울 강남구</span>
+                </div>
+              </div>
+              <div class="sc-order-item">
+                <div class="sc-order-top">
+                  <div>
+                    <div class="sc-order-id">ORD-1003 · 1시간 전</div>
+                    <div class="sc-order-name"><span class="crown">👑</span> 박*호 <span style="font-size:7px;background:#FEF3C7;color:#D97706;padding:1px 4px;border-radius:2px;font-weight:700;">VIP</span></div>
+                  </div>
+                  <span class="sc-order-status" style="background:#D1FAE5;color:#059669;">결제완료</span>
+                </div>
+                <div class="sc-order-product">오버핏 후드티 ×3, 조거 팬츠 ×2</div>
+                <div class="sc-order-bottom">
+                  <span class="sc-order-price">215,000원</span>
+                  <span class="sc-order-time">서울 마포구</span>
+                </div>
+              </div>
+              <div class="sc-order-item">
+                <div class="sc-order-top">
+                  <div>
+                    <div class="sc-order-id">ORD-1002 · 45분 전</div>
+                    <div class="sc-order-name">이*연</div>
+                  </div>
+                  <span class="sc-order-status" style="background:#FEF3C7;color:#D97706;">배송준비중</span>
+                </div>
+                <div class="sc-order-product">코튼 반팔 원피스 ×1</div>
+                <div class="sc-order-bottom">
+                  <span class="sc-order-price">42,000원</span>
+                  <span class="sc-order-time">경기 성남시</span>
+                </div>
+              </div>
+            </div>
+            <div class="sc-nav">
+              <div class="sc-nav-item"><div class="sc-nav-icon">🏠</div><span class="sc-nav-label">홈</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📋</div><span class="sc-nav-label">보드</span></div>
+              <div class="sc-nav-item on"><div class="sc-nav-icon">📦</div><span class="sc-nav-label">주문</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📊</div><span class="sc-nav-label">리포트</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">⚙️</div><span class="sc-nav-label">설정</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="desc-col">
+        <div>
+          <h3 class="desc-heading">4가지 탭으로 즉시 분류</h3>
+          <table class="info-table">
+            <thead>
+              <tr><th>탭</th><th>필터 조건</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>신규 주문</strong></td><td>결제완료 상태</td></tr>
+              <tr><td><strong>미처리</strong></td><td>결제완료 + 배송준비중 중 처리 안 된 주문</td></tr>
+              <tr><td><strong>취소/환불</strong></td><td>취소요청·취소완료·환불완료 상태</td></tr>
+              <tr><td><strong>단골(VIP)</strong></td><td>VIP 플래그가 있는 고객 주문만</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3 class="desc-heading">주문 카드 구성</h3>
+          <div class="tip-list">
+            <div class="tip-item">
+              <div class="tip-num">👑</div>
+              <div class="tip-body"><h4>VIP 왕관 배지</h4><p>단골/VIP 고객 주문에 왕관 배지와 VIP 태그가 표시됩니다. 단골 고객을 즉시 식별해 우선 처리하세요.</p></div>
+            </div>
+            <div class="tip-item">
+              <div class="tip-num">🔏</div>
+              <div class="tip-body"><h4>고객명 마스킹</h4><p>개인정보 보호를 위해 고객명은 자동으로 마스킹 처리됩니다 (김민준 → 김*준).</p></div>
+            </div>
+            <div class="tip-item">
+              <div class="tip-num">↓</div>
+              <div class="tip-body"><h4>무한 스크롤</h4><p>6건씩 자동으로 추가 로드됩니다. 하단 새로고침 버튼으로 최신 데이터를 불러올 수 있습니다.</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="callout indigo">
+          <strong>카페24 미연동 시</strong><br>
+          카페24를 연동하지 않은 경우 샘플 데이터로 화면이 채워집니다. 설정 메뉴에서 연동을 완료하면 실시간 주문 데이터를 확인할 수 있습니다.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- 04. 리포트                          -->
+<!-- ═══════════════════════════════════ -->
+<section class="guide-section" id="reports">
+  <div class="container">
+
+    <div class="section-eyebrow reveal">
+      <span class="section-num">04</span>
+      <span class="section-tag amber">리포트</span>
+    </div>
+    <h2 class="section-title reveal reveal-d1">매주 사장님 언어로<br><em>인사이트</em>를 드립니다</h2>
+    <p class="section-lead reveal reveal-d2">단순 수치가 아닌 스토리로 전달하는 주간 리포트. 4가지 관점에서 쇼핑몰 현황을 정리합니다.</p>
+
+    <div class="feature-block reveal">
+      <div class="phone-col">
+        <div class="phone-shell">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="sc-bar">
+              <div class="sc-bar-title">리포트</div>
+              <div class="sc-bar-right">5월 4주차</div>
+            </div>
+            <div class="sc-body" style="padding-top:6px;">
+              <!-- 이번 주 리포트 헤더 -->
+              <div class="sc-card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF);border-color:#DBEAFE;">
+                <div style="font-size:7px;font-weight:700;letter-spacing:.1em;color:#2563EB;text-transform:uppercase;margin-bottom:3px;">THIS WEEK</div>
+                <div style="font-size:9px;font-weight:900;color:#1C1814;line-height:1.3;margin-bottom:5px;">대체로 맑음, 하지만 배송엔 민감</div>
+                <div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:5px;">
+                  <span style="background:#DBEAFE;color:#2563EB;border-radius:999px;padding:2px 6px;font-size:6.5px;font-weight:700;">만족도 4.8</span>
+                  <span style="background:#DBEAFE;color:#2563EB;border-radius:999px;padding:2px 6px;font-size:6.5px;font-weight:700;">긍정 85%</span>
+                  <span style="background:#FEE2E2;color:#DC2626;border-radius:999px;padding:2px 6px;font-size:6.5px;font-weight:700;">미답변 12건</span>
+                </div>
+                <div style="background:#fff;border-radius:4px;padding:4px;font-size:7px;color:#888;font-style:italic;">이번 주 리뷰의 85%가 긍정이었어요. '소재의 부드러움'에 감동한 고객이 많았습니다.</div>
+                <div style="margin-top:5px;text-align:right;font-size:7px;font-weight:700;color:#7C3AED;display:flex;align-items:center;gap:2px;justify-content:flex-end;">🔒 PRO 전체 열람</div>
+              </div>
+              <!-- 이전 리포트 목록 -->
+              <div style="font-size:7.5px;font-weight:700;color:#888;margin-bottom:4px;">📁 이전 리포팅</div>
+              <div class="sc-report-card">
+                <div class="sc-report-header">
+                  <div class="sc-report-type" style="color:#0F766E;">🌱 신규 고객 성장</div>
+                  <div class="sc-report-chips">
+                    <span class="sc-report-chip">#첫구매전환</span>
+                    <span class="sc-report-chip">#VIP골든타임</span>
+                  </div>
+                  <div class="sc-report-title">이번 주, 20명의 새로운 인연이 생겼습니다!</div>
+                </div>
+                <div class="sc-report-footer"><span>5월 4주차</span><span class="sc-report-pro">전체 리포트 보기 →</span></div>
+              </div>
+              <div class="sc-report-card">
+                <div class="sc-report-header">
+                  <div class="sc-report-type" style="color:#2563EB;">📊 비즈니스 브리핑</div>
+                  <div class="sc-report-chips">
+                    <span class="sc-report-chip">#수요일피크타임</span>
+                    <span class="sc-report-chip">#봄가디건</span>
+                  </div>
+                  <div class="sc-report-title">수요일 밤 주문 폭발, 봄 가디건이 효자 상품</div>
+                </div>
+                <div class="sc-report-footer"><span>5월 3주차</span><span class="sc-report-pro">전체 리포트 보기 →</span></div>
+              </div>
+            </div>
+            <div class="sc-nav">
+              <div class="sc-nav-item"><div class="sc-nav-icon">🏠</div><span class="sc-nav-label">홈</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📋</div><span class="sc-nav-label">보드</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📦</div><span class="sc-nav-label">주문</span></div>
+              <div class="sc-nav-item on"><div class="sc-nav-icon">📊</div><span class="sc-nav-label">리포트</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">⚙️</div><span class="sc-nav-label">설정</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="desc-col">
+        <div>
+          <h3 class="desc-heading">4가지 리포트 타입</h3>
+          <div class="tip-list">
+            <div class="tip-item">
+              <div class="tip-num" style="background:#2563EB;">B</div>
+              <div class="tip-body"><h4>비즈니스 브리핑</h4><p>이번 주 매출·마진·피크타임·베스트 상품을 분석한 경영 현황 리포트입니다.</p></div>
+            </div>
+            <div class="tip-item">
+              <div class="tip-num" style="background:#7C3AED;">R</div>
+              <div class="tip-body"><h4>고객 리뷰 / CS</h4><p>리뷰 긍정률·미답변 건수·CS 이슈를 모아 사장님 언어로 전달합니다.</p></div>
+            </div>
+            <div class="tip-item">
+              <div class="tip-num" style="background:#D97706;">O</div>
+              <div class="tip-body"><h4>운영 & 배송</h4><p>배송 지연·환불·공급사 이슈 등 이번 주 운영 병목을 정리합니다.</p></div>
+            </div>
+            <div class="tip-item">
+              <div class="tip-num" style="background:#0F766E;">N</div>
+              <div class="tip-body"><h4>신규 고객 성장</h4><p>신규 가입→첫 구매 전환율과 LTV 인사이트, 미결제 쿠폰 발송 타이밍을 알려줍니다.</p></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="desc-heading">리포트 구성 4블록</h3>
+          <table class="info-table">
+            <tbody>
+              <tr><td>🏆 <strong>핵심 장면</strong></td><td>이번 주에서 가장 결정적인 데이터 하나</td></tr>
+              <tr><td>💡 <strong>데이터 TMI</strong></td><td>흥미롭고 실용적인 인사이트</td></tr>
+              <tr><td>👏 <strong>참 잘했어요!</strong></td><td>잘 된 점, 긍정 강화 메시지</td></tr>
+              <tr><td>🚨 <strong>지금 해보세요!</strong></td><td>즉시 행동해야 할 액션 아이템</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3 class="desc-heading">PRO 전체 리포트</h3>
+          <p class="desc-body">PRO 플랜에서는 각 리포트 카드에서 <strong>전체 리포트를 새 창으로 열람</strong>할 수 있습니다. 고객 목록, 쿠폰 발송 CTA, 상세 통계가 담긴 이메일 형태의 전체 리포트를 확인하세요.</p>
+          <span class="pro-lock">PRO — 전체 리포트 새 창 열람</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ -->
+<!-- 05. 설정                            -->
+<!-- ═══════════════════════════════════ -->
+<section class="guide-section" id="settings">
+  <div class="container">
+
+    <div class="section-eyebrow reveal">
+      <span class="section-num">05</span>
+      <span class="section-tag indigo">설정</span>
+    </div>
+    <h2 class="section-title reveal reveal-d1">카페24 연동부터<br><em>알림</em>까지 한 곳에서</h2>
+    <p class="section-lead reveal reveal-d2">카페24 OAuth 연동, 대시보드 항목 설정, 알림 조건 등 앱 전반을 설정합니다.</p>
+
+    <!-- 연동 설정 -->
+    <div class="feature-block reveal">
+      <div class="phone-col">
+        <div class="phone-shell">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="sc-bar">
+              <div class="sc-bar-title">설정</div>
+              <div class="sc-bar-right" style="background:#EDE9FE;color:#7C3AED;padding:2px 6px;border-radius:999px;font-weight:700;">FREE</div>
+            </div>
+            <div class="sc-body" style="padding-top:4px;overflow:hidden;">
+              <!-- 플랜 카드 -->
+              <div style="background:#F8F8FF;border:.5px solid #C4B5FD;border-radius:8px;padding:8px;margin-bottom:6px;">
+                <div style="font-size:8.5px;font-weight:800;color:#1C1814;margin-bottom:2px;">FREE 플랜 사용 중</div>
+                <div style="font-size:7px;color:#888;margin-bottom:5px;">PRO로 업그레이드하면 더 많은 기능을 사용할 수 있어요.</div>
+                <div style="background:linear-gradient(90deg,#4F46E5,#7C3AED);color:#fff;border-radius:6px;padding:5px;text-align:center;font-size:7.5px;font-weight:800;">⚡ PRO 14일 무료 체험 시작</div>
+              </div>
+              <!-- 연동 섹션 -->
+              <div style="background:#FDFAF5;border:.5px solid #DDD;border-radius:8px;padding:8px;margin-bottom:6px;">
+                <div style="font-size:7.5px;font-weight:700;color:#888;margin-bottom:5px;">🔗 계정 연동</div>
+                <div class="sc-setting-row">
+                  <div>
+                    <div class="sc-setting-label">카페24 쇼핑몰 연동</div>
+                    <div class="sc-setting-sub">쇼핑몰 ID 입력 후 OAuth 인증</div>
+                  </div>
+                  <div style="background:#2B5C40;color:#fff;border-radius:4px;padding:2px 6px;font-size:7px;font-weight:700;">연결하기</div>
+                </div>
+              </div>
+              <!-- 대시보드 설정 -->
+              <div style="background:#FDFAF5;border:.5px solid #DDD;border-radius:8px;padding:8px;margin-bottom:6px;">
+                <div style="font-size:7.5px;font-weight:700;color:#888;margin-bottom:5px;">📊 대시보드 항목 설정</div>
+                <div style="font-size:7px;font-weight:600;color:#888;margin-bottom:3px;">📌 필수 노출 항목 (항상 표시)</div>
+                <div class="sc-setting-row">
+                  <span class="sc-setting-label">외형 매출과 실질 마진</span>
+                  <span style="color:#22C55E;font-size:9px;">✓ 필수</span>
+                </div>
+                <div class="sc-setting-row">
+                  <span class="sc-setting-label">운영 병목 및 리스크</span>
+                  <span style="color:#22C55E;font-size:9px;">✓ 필수</span>
+                </div>
+                <div style="border-top:.5px solid #eee;margin:3px 0;"></div>
+                <div style="font-size:7px;font-weight:600;color:#888;margin:3px 0;">선택 항목 (1/1 선택됨 · FREE)</div>
+                <div class="sc-setting-row">
+                  <span class="sc-setting-label">신규 가입자 구매 전환</span>
+                  <div class="sc-toggle"></div>
+                </div>
+                <div class="sc-setting-row" style="opacity:.4;">
+                  <span class="sc-setting-label">단골/VIP 고객 현황</span>
+                  <div class="sc-toggle off"></div>
+                </div>
+              </div>
+            </div>
+            <div class="sc-nav">
+              <div class="sc-nav-item"><div class="sc-nav-icon">🏠</div><span class="sc-nav-label">홈</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📋</div><span class="sc-nav-label">보드</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📦</div><span class="sc-nav-label">주문</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📊</div><span class="sc-nav-label">리포트</span></div>
+              <div class="sc-nav-item on"><div class="sc-nav-icon">⚙️</div><span class="sc-nav-label">설정</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="desc-col">
+        <div>
+          <h3 class="desc-heading">카페24 연동 3단계</h3>
+          <div class="tip-list">
+            <div class="tip-item">
+              <div class="tip-num">1</div>
+              <div class="tip-body"><h4>쇼핑몰 ID 입력</h4><p>설정 화면의 <strong>카페24 쇼핑몰 연동</strong> 항목에서 쇼핑몰 ID를 입력합니다. (예: myshop → myshop.cafe24.com)</p></div>
+            </div>
+            <div class="tip-item">
+              <div class="tip-num">2</div>
+              <div class="tip-body"><h4>카페24 OAuth 인증</h4><p>카페24 공식 로그인 화면으로 이동합니다. 비밀번호는 업텐도에 전달되지 않으며, 권한을 허가하면 인증이 완료됩니다.</p></div>
+            </div>
+            <div class="tip-item">
+              <div class="tip-num">3</div>
+              <div class="tip-body"><h4>실데이터 시작</h4><p>인증 완료 즉시 홈으로 이동하며, 실주문·재고·고객 데이터가 대시보드에 표시됩니다.</p></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="desc-heading">대시보드 항목 설정</h3>
+          <p class="desc-body" style="margin-bottom:.8rem;">홈 대시보드에 표시할 섹션을 선택합니다. <strong>필수 항목</strong>은 항상 표시되며, <strong>선택 항목</strong>은 토글로 켜고 끌 수 있습니다.</p>
+          <table class="info-table">
+            <thead><tr><th>구분</th><th>FREE</th><th>PRO</th></tr></thead>
+            <tbody>
+              <tr><td>필수 섹션 3종</td><td class="check">항상 표시</td><td class="check">항상 표시</td></tr>
+              <tr><td>선택 섹션 활성화</td><td>1개만</td><td class="check">무제한</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 알림 설정 -->
+    <div class="feature-block reverse reveal" style="margin-top:4rem;">
+      <div class="phone-col">
+        <div class="phone-shell">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="sc-bar">
+              <div class="sc-bar-title">설정 · 알림</div>
+              <div class="sc-bar-right"></div>
+            </div>
+            <div class="sc-body" style="padding-top:4px;">
+              <div style="background:#FDFAF5;border:.5px solid #DDD;border-radius:8px;padding:8px;margin-bottom:6px;">
+                <div class="sc-setting-row">
+                  <div>
+                    <div class="sc-setting-label">알림 전체 허용</div>
+                    <div class="sc-setting-sub">앱 알림 수신 여부</div>
+                  </div>
+                  <div class="sc-toggle"></div>
+                </div>
+              </div>
+              <!-- 기본 알림 -->
+              <div style="background:#FDFAF5;border:.5px solid #DDD;border-radius:8px;padding:8px;margin-bottom:6px;">
+                <div style="font-size:7.5px;font-weight:700;color:#888;margin-bottom:5px;">🔔 기본 운영 알림</div>
+                <div class="sc-setting-row">
+                  <div><div class="sc-setting-label">미처리 주문 알림</div><div class="sc-setting-sub">매일 특정 시간 요약</div></div>
+                  <div class="sc-toggle"></div>
+                </div>
+                <div class="sc-setting-row">
+                  <div><div class="sc-setting-label">취소/환불 발생 알림</div><div class="sc-setting-sub">발생 즉시</div></div>
+                  <div class="sc-toggle"></div>
+                </div>
+                <div class="sc-setting-row">
+                  <div><div class="sc-setting-label">배송 지연 경고</div><div class="sc-setting-sub">출고 마감 시간 전</div></div>
+                  <div class="sc-toggle"></div>
+                </div>
+              </div>
+              <!-- 맞춤형 알림 -->
+              <div style="background:#FDFAF5;border:.5px solid #DDD;border-radius:8px;padding:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                  <div style="font-size:7.5px;font-weight:700;color:#888;">⚡ 맞춤형 조건 알림</div>
+                  <span style="font-size:6.5px;color:#888;">1/1 설정됨 · FREE</span>
+                </div>
+                <div class="sc-setting-row">
+                  <div><div class="sc-setting-label">고단가 주문 알림</div><div class="sc-setting-sub">N원 이상 결제 시 즉시</div></div>
+                  <div class="sc-toggle"></div>
+                </div>
+                <div class="sc-setting-row" style="opacity:.4;">
+                  <div><div class="sc-setting-label">VIP 단골 주문 알림</div><div class="sc-setting-sub">누적 N회 이상 고객</div></div>
+                  <div class="sc-toggle off"></div>
+                </div>
+                <div class="sc-setting-row" style="opacity:.4;">
+                  <div><div class="sc-setting-label">품절 임박 방어 알림</div><div class="sc-setting-sub">재고 N개 미만 시</div></div>
+                  <div class="sc-toggle off"></div>
+                </div>
+              </div>
+            </div>
+            <div class="sc-nav">
+              <div class="sc-nav-item"><div class="sc-nav-icon">🏠</div><span class="sc-nav-label">홈</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📋</div><span class="sc-nav-label">보드</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📦</div><span class="sc-nav-label">주문</span></div>
+              <div class="sc-nav-item"><div class="sc-nav-icon">📊</div><span class="sc-nav-label">리포트</span></div>
+              <div class="sc-nav-item on"><div class="sc-nav-icon">⚙️</div><span class="sc-nav-label">설정</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="desc-col">
+        <div>
+          <h3 class="desc-heading">기본 운영 알림 3종 (FREE 포함)</h3>
+          <div class="sub-features">
+            <div class="sub-feature">
+              <div class="sf-icon">📦</div>
+              <div class="sf-title">미처리 주문 알림</div>
+              <div class="sf-body">매일 지정 시간에 미처리 주문 건수를 요약해서 발송합니다.</div>
+            </div>
+            <div class="sub-feature">
+              <div class="sf-icon">🔄</div>
+              <div class="sf-title">취소/환불 발생 알림</div>
+              <div class="sf-body">취소·환불이 접수되는 즉시 실시간으로 알림을 받습니다.</div>
+            </div>
+            <div class="sub-feature">
+              <div class="sf-icon">🚚</div>
+              <div class="sf-title">배송 지연 경고</div>
+              <div class="sf-body">출고 마감 시간 전에 지연 가능성이 있는 주문을 미리 경고합니다.</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="desc-heading">맞춤형 조건 알림 4종</h3>
+          <table class="info-table">
+            <thead><tr><th>알림</th><th>조건</th><th>FREE</th><th>PRO</th></tr></thead>
+            <tbody>
+              <tr><td>고단가 주문</td><td>N원 이상 결제 시</td><td class="check">✓</td><td class="check">✓</td></tr>
+              <tr><td>VIP 단골 주문</td><td>누적 N회 이상 고객</td><td class="cross">—</td><td class="check">✓</td></tr>
+              <tr><td>품절 임박 방어</td><td>재고 N개 미만</td><td class="cross">—</td><td class="check">✓</td></tr>
+              <tr><td>워스트 공급사 경고</td><td>지연율 급증 시</td><td class="cross">—</td><td class="check">✓</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:.78rem;color:var(--ink-soft);margin-top:.5rem;">FREE 플랜은 맞춤형 알림을 <strong>1개</strong>만 설정할 수 있습니다. PRO는 전체 무제한 설정 가능합니다.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section style="background:var(--green);padding:clamp(3rem,6vw,5rem) clamp(1rem,5vw,3rem);text-align:center;">
+  <div style="max-width:600px;margin:0 auto;" class="reveal">
+    <div style="font-size:.75rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:oklch(85% .08 150);margin-bottom:1rem;">PRO 14일 무료 체험</div>
+    <h2 style="font-size:clamp(1.8rem,4vw,3rem);font-weight:900;letter-spacing:-.03em;color:#FDFAF5;line-height:1.15;margin-bottom:1rem;">지금 바로 카페24를 연동하고<br>무료로 시작해보세요.</h2>
+    <p style="font-size:.95rem;color:oklch(85% .05 150);margin-bottom:2rem;line-height:1.7;">신용카드 없이 · 카드 정보 불필요 · 14일 후 자동 전환 없음</p>
+    <a href="https://peter-shimfactory.github.io" style="display:inline-flex;align-items:center;gap:.5rem;background:var(--gold);color:var(--ink);padding:1rem 2.4rem;border-radius:3px;font-size:.95rem;font-weight:800;text-decoration:none;transition:transform .15s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+      업텐도 시작하기 →
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="background:#111;padding:2rem clamp(1rem,5vw,3rem);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;border-top:1px solid #2A2520;">
+  <div style="font-size:.95rem;font-weight:900;color:var(--gold);letter-spacing:-.02em;">Uptendo.</div>
+  <div style="font-size:.75rem;color:#666;">© 2026 Uptendo. All rights reserved.</div>
+</footer>
+
+<script>
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// active nav highlight on scroll
+const sections = ['home','board','orders','reports','settings'];
+const navLinks = document.querySelectorAll('.tnav');
+const sio = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const link = document.querySelector(`.tnav[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+sections.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) sio.observe(el);
+});
+</script>
+</body>
+</html>
